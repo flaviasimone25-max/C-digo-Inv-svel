@@ -1,6 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Check, Flame, Brain, Target, Zap, MessageSquare, Gift, ChevronDown, Star, ArrowRight, X, XCircle, Award } from "lucide-react";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
+import { WistiaVsl } from "@/components/WistiaVsl";
+import { hasValidRevealAccess, saveRevealAccess } from "@/lib/vsl-reveal";
 import flaviaImg from "@/assets/flavia.webp";
 import logoObjecaoZero from "@/assets/logo-objecao-zero.webp";
 import frustradoImg from "@/assets/frustrado.webp";
@@ -44,11 +46,17 @@ export const Route = createFileRoute("/")({
 
 const CHECKOUT_URL = "https://pay.kiwify.com.br/FGxNNX7";
 
-function Hero() {
+function VslHeroHeader({
+  onReachThreshold,
+  trackThreshold,
+}: {
+  onReachThreshold: () => void;
+  trackThreshold: boolean;
+}) {
   return (
-    <section className="bg-[var(--navy-deep)] text-[var(--cream)] relative overflow-hidden">
+    <section className="vsl-hero-section relative overflow-hidden pb-10 sm:pb-12">
       <div className="absolute inset-0 opacity-[0.08] [background-image:radial-gradient(circle_at_20%_20%,var(--lime),transparent_40%),radial-gradient(circle_at_80%_60%,var(--lime),transparent_45%)]" />
-      <div className="relative max-w-3xl mx-auto px-6 pt-16 pb-16 text-center">
+      <div className="relative max-w-3xl mx-auto px-6 pt-16 text-center">
         <img
           src={logoObjecaoZero}
           alt="Objeção Zero"
@@ -58,7 +66,18 @@ function Hero() {
           fetchPriority="high"
           decoding="async"
         />
-        <h1 className="mt-5 text-2xl sm:text-4xl md:text-5xl font-extrabold leading-[1.15] sm:leading-[1.1]">
+      </div>
+      <WistiaVsl onReachThreshold={onReachThreshold} trackThreshold={trackThreshold} />
+    </section>
+  );
+}
+
+function HeroContent() {
+  return (
+    <section className="bg-[var(--navy-deep)] text-[var(--cream)] relative overflow-hidden">
+      <div className="absolute inset-0 opacity-[0.08] [background-image:radial-gradient(circle_at_20%_20%,var(--lime),transparent_40%),radial-gradient(circle_at_80%_60%,var(--lime),transparent_45%)]" />
+      <div className="relative max-w-3xl mx-auto px-6 pt-5 pb-16 text-center">
+        <h1 className="text-2xl sm:text-4xl md:text-5xl font-extrabold leading-[1.15] sm:leading-[1.1]">
           O playbook que ensina a <span className="text-[var(--lime)]">ler o comportamento</span> do cliente e reduzir objeções sem precisar pressionar para vender.
         </h1>
         <p className="mt-6 text-base sm:text-lg text-[var(--cream)]/80 max-w-2xl mx-auto">
@@ -540,8 +559,31 @@ function WhatsAppFloat() {
 }
 
 function SalesPage() {
+  const [contentRevealed, setContentRevealed] = useState(false);
+  const [storageChecked, setStorageChecked] = useState(false);
+  const [instantReveal, setInstantReveal] = useState(false);
+  const contentRevealedRef = useRef(false);
+
+  const revealSalesContent = useCallback(() => {
+    if (contentRevealedRef.current) return;
+    contentRevealedRef.current = true;
+    saveRevealAccess();
+    setContentRevealed(true);
+  }, []);
+
+  useEffect(() => {
+    if (hasValidRevealAccess()) {
+      contentRevealedRef.current = true;
+      setInstantReveal(true);
+      setContentRevealed(true);
+    }
+    setStorageChecked(true);
+  }, []);
+
   useEffect(() => {
     trackPageViewContent();
+
+    if (!contentRevealed) return;
 
     const seen = new Set<string>();
     const observer = new IntersectionObserver(
@@ -563,22 +605,38 @@ function SalesPage() {
     }
 
     return () => observer.disconnect();
-  }, []);
+  }, [contentRevealed]);
+
+  const delayedContentClass = contentRevealed
+    ? instantReveal
+      ? "delayed-sales-content--visible-immediate"
+      : "delayed-sales-content--visible"
+    : "delayed-sales-content--hidden";
 
   return (
     <main>
-      <Hero />
-      <Problem />
-      <Receive />
-      <Bonuses />
-      <Testimonials />
-      <About />
-      <Offer />
-      <Guarantee />
-      <Faq />
-      <Footer />
-      <ExitIntentPopup />
-      <WhatsAppFloat />
+      <VslHeroHeader
+        onReachThreshold={revealSalesContent}
+        trackThreshold={storageChecked && !contentRevealed}
+      />
+      <div id="delayed-sales-content" className={delayedContentClass}>
+        <HeroContent />
+        <Problem />
+        <Receive />
+        <Bonuses />
+        <Testimonials />
+        <About />
+        <Offer />
+        <Guarantee />
+        <Faq />
+        <Footer />
+      </div>
+      {contentRevealed && (
+        <>
+          <ExitIntentPopup />
+          <WhatsAppFloat />
+        </>
+      )}
     </main>
   );
 }
