@@ -8,8 +8,8 @@ import logoObjecaoZero from "@/assets/logo-objecao-zero.webp";
 import frustradoImg from "@/assets/frustrado.webp";
 import seloGarantia from "@/assets/selo-garantia.webp";
 import pagamentoSeguro from "@/assets/pagamento-seguro.webp";
+import { buildSeoMeta } from "@/lib/site-seo";
 import {
-  SECTION_PIXEL_EVENTS,
   trackExitCheckout,
   trackExitPopupShown,
   trackFaqCheckout,
@@ -23,24 +23,24 @@ import {
 } from "@/lib/meta-pixel";
 
 export const Route = createFileRoute("/")({
-  head: () => ({
-    meta: [
-      { title: "Playbook Objeção Zero — Venda lendo o comportamento do cliente" },
-      { name: "description", content: "Aprenda a identificar perfis comportamentais, reduzir objeções e fechar mais vendas sem pressionar. Método prático Trinus." },
-      { property: "og:title", content: "Playbook Objeção Zero" },
-      { property: "og:description", content: "Leia o comportamento do cliente, reduza objeções e venda com naturalidade." },
-    ],
-    links: [
-      { rel: "preconnect", href: "https://fonts.googleapis.com" },
-      { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "" },
-      {
-        rel: "preload",
-        href: "https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700;800&family=Inter:wght@400;600&display=swap",
-        as: "style",
-      },
-      { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700;800&family=Inter:wght@400;600&display=swap" },
-    ],
-  }),
+  head: () => {
+    const seo = buildSeoMeta("/");
+    return {
+      meta: seo.meta,
+      links: [
+        ...seo.links,
+        { rel: "preconnect", href: "https://fonts.googleapis.com" },
+        { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "" },
+        {
+          rel: "preload",
+          href: "https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700;800&family=Inter:wght@400;600&display=swap",
+          as: "style",
+        },
+        { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700;800&family=Inter:wght@400;600&display=swap" },
+      ],
+      scripts: seo.scripts,
+    };
+  },
   component: SalesPage,
 });
 

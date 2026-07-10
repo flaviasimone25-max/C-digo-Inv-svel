@@ -72,18 +72,6 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Playbook Objeção Zero — Venda lendo o comportamento do cliente" },
-      { name: "description", content: "Aprenda a identificar perfis comportamentais, reduzir objeções e fechar mais vendas sem pressionar. Método prático Trinus." },
-      { name: "author", content: "Trinus Business" },
-      { property: "og:title", content: "Playbook Objeção Zero" },
-      { property: "og:description", content: "Leia o comportamento do cliente, reduza objeções e venda com naturalidade." },
-      { property: "og:type", content: "website" },
-      { property: "og:locale", content: "pt_BR" },
-      { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:title", content: "Playbook Objeção Zero" },
-      { name: "twitter:description", content: "Leia o comportamento do cliente, reduza objeções e venda com naturalidade." },
-      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/7c4a5305-dd42-4742-9424-848aa00ea4d8/id-preview-13a4fa77--3585aab6-5523-453f-ba1a-c2b239fec89a.lovable.app-1779907281693.png" },
-      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/7c4a5305-dd42-4742-9424-848aa00ea4d8/id-preview-13a4fa77--3585aab6-5523-453f-ba1a-c2b239fec89a.lovable.app-1779907281693.png" },
     ],
     links: [
       {
