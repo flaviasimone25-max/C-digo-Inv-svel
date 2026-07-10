@@ -1,8 +1,15 @@
 import { useEffect, useRef } from "react";
 import { REVEAL_AT_SECONDS, WISTIA_MEDIA_ID } from "@/lib/vsl-config";
+import {
+  trackVslPlay,
+  trackVslProgressMilestone,
+  trackVslRevealPoint,
+  VSL_PROGRESS_MILESTONES,
+} from "@/lib/meta-pixel";
 
 interface WistiaVideo {
   time(): number;
+  duration(): number;
   state(): string;
   bind(event: string, callback: (...args: unknown[]) => void): void;
   unbind(event: string, callback?: (...args: unknown[]) => void): void;
@@ -42,28 +49,53 @@ function loadWistiaScript(): Promise<void> {
 
 interface WistiaVslProps {
   onReachThreshold: () => void;
-  /** Quando false, o player é exibido mas não monitora o tempo de liberação. */
+  /** Quando false, não dispara liberação por tempo — pixel da VSL continua ativo. */
   trackThreshold?: boolean;
 }
 
 export function WistiaVsl({ onReachThreshold, trackThreshold = true }: WistiaVslProps) {
   const onReachThresholdRef = useRef(onReachThreshold);
+  const trackThresholdRef = useRef(trackThreshold);
   onReachThresholdRef.current = onReachThreshold;
+  trackThresholdRef.current = trackThreshold;
 
   useEffect(() => {
     loadWistiaScript();
   }, []);
 
   useEffect(() => {
-    if (!trackThreshold) return;
-
     let mounted = true;
     let video: WistiaVideo | null = null;
     let thresholdReached = false;
+    let playTracked = false;
+    let revealPointTracked = false;
+    const milestonesFired = new Set<number>();
 
-    const checkPlaybackTime = (player: WistiaVideo) => {
-      if (thresholdReached || player.state() !== "playing") return;
-      if (player.time() >= REVEAL_AT_SECONDS) {
+    const checkProgress = (player: WistiaVideo) => {
+      if (player.state() !== "playing") return;
+
+      const currentTime = player.time();
+      const duration = player.duration() || REVEAL_AT_SECONDS;
+
+      for (const milestone of VSL_PROGRESS_MILESTONES) {
+        if (milestonesFired.has(milestone)) continue;
+        const thresholdTime = (duration * milestone) / 100;
+        if (currentTime >= thresholdTime) {
+          milestonesFired.add(milestone);
+          trackVslProgressMilestone(milestone, currentTime, duration);
+        }
+      }
+
+      if (!revealPointTracked && currentTime >= REVEAL_AT_SECONDS) {
+        revealPointTracked = true;
+        trackVslRevealPoint(currentTime);
+      }
+
+      if (
+        trackThresholdRef.current &&
+        !thresholdReached &&
+        currentTime >= REVEAL_AT_SECONDS
+      ) {
         thresholdReached = true;
         onReachThresholdRef.current();
       }
@@ -71,12 +103,18 @@ export function WistiaVsl({ onReachThreshold, trackThreshold = true }: WistiaVsl
 
     const onPlay = () => {
       if (!video) return;
-      checkPlaybackTime(video);
+
+      if (!playTracked) {
+        playTracked = true;
+        trackVslPlay(video.time());
+      }
+
+      checkProgress(video);
     };
 
     const onSecondChange = () => {
       if (!video) return;
-      checkPlaybackTime(video);
+      checkProgress(video);
     };
 
     const initPlayer = () => {
@@ -104,10 +142,10 @@ export function WistiaVsl({ onReachThreshold, trackThreshold = true }: WistiaVsl
         video.unbind("secondchange", onSecondChange);
       }
     };
-  }, [trackThreshold]);
+  }, []);
 
   return (
-    <div className="vsl-player-wrap">
+    <div id="vsl-section" className="vsl-player-wrap">
       <div className="vsl-player-frame">
         <div
           className={`wistia_embed wistia_async_${WISTIA_MEDIA_ID} seo=false videoFoam=true`}

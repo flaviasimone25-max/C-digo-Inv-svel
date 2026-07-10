@@ -17,7 +17,8 @@ import {
   trackHeroInterest,
   trackMetaEvent,
   trackOfferCheckout,
-  trackPageViewContent,
+  trackVslContentUnlocked,
+  trackVslLandingView,
   trackReceiveCheckout,
   trackWhatsAppContact,
 } from "@/lib/meta-pixel";
@@ -563,10 +564,15 @@ function SalesPage() {
   const [storageChecked, setStorageChecked] = useState(false);
   const [instantReveal, setInstantReveal] = useState(false);
   const contentRevealedRef = useRef(false);
+  const unlockTrackedRef = useRef(false);
 
   const revealSalesContent = useCallback(() => {
     if (contentRevealedRef.current) return;
     contentRevealedRef.current = true;
+    if (!unlockTrackedRef.current) {
+      unlockTrackedRef.current = true;
+      trackVslContentUnlocked("video-threshold");
+    }
     saveRevealAccess();
     setContentRevealed(true);
   }, []);
@@ -581,8 +587,16 @@ function SalesPage() {
   }, []);
 
   useEffect(() => {
-    trackPageViewContent();
+    trackVslLandingView();
+  }, []);
 
+  useEffect(() => {
+    if (!contentRevealed || !instantReveal || unlockTrackedRef.current) return;
+    unlockTrackedRef.current = true;
+    trackVslContentUnlocked("storage-return");
+  }, [contentRevealed, instantReveal]);
+
+  useEffect(() => {
     if (!contentRevealed) return;
 
     const seen = new Set<string>();
