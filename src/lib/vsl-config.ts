@@ -1,5 +1,5 @@
-/** Segundos de reprodução do vídeo antes de liberar o restante da página (9min 28s). */
-export const REVEAL_AT_SECONDS = 568;
+/** Segundos de reprodução do vídeo antes de liberar o restante da página (14min 2s 34s = 14min 36s). */
+export const REVEAL_AT_SECONDS = 14 * 60 + 2 + 34;
 
 /** Chave usada no localStorage para persistir a liberação. */
 export const REVEAL_STORAGE_KEY = "objecao_zero_vsl_revealed";
