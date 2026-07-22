@@ -5,7 +5,6 @@ import { WistiaVsl } from "@/components/WistiaVsl";
 import { hasValidRevealAccess, saveRevealAccess } from "@/lib/vsl-reveal";
 import { ENABLE_EXIT_POPUP, ENABLE_WHATSAPP_FLOAT } from "@/lib/feature-flags";
 import flaviaImg from "@/assets/flavia.webp";
-import logoObjecaoZero from "@/assets/logo-objecao-zero.webp";
 import frustradoImg from "@/assets/frustrado.webp";
 import seloGarantia from "@/assets/selo-garantia.webp";
 import pagamentoSeguro from "@/assets/pagamento-seguro.webp";
@@ -59,15 +58,15 @@ function VslHeroHeader({
     <section className="vsl-hero-section relative overflow-hidden pb-10 sm:pb-12">
       <div className="absolute inset-0 opacity-[0.08] [background-image:radial-gradient(circle_at_20%_20%,var(--lime),transparent_40%),radial-gradient(circle_at_80%_60%,var(--lime),transparent_45%)]" />
       <div className="relative max-w-3xl mx-auto px-6 pt-16 text-center">
-        <img
-          src={logoObjecaoZero}
-          alt="Objeção Zero"
-          width={320}
-          height={128}
-          className="mx-auto h-20 sm:h-28 md:h-32 w-auto object-contain"
-          fetchPriority="high"
-          decoding="async"
-        />
+        <div className="mx-auto flex items-center justify-center gap-2 sm:gap-3">
+          <span className="inline-flex h-8 w-8 sm:h-10 sm:w-10 items-center justify-center rounded-full bg-[var(--lime)] text-[var(--navy-deep)] text-lg sm:text-xl font-bold">
+            ✓
+          </span>
+          <span className="font-extrabold font-display text-2xl sm:text-4xl md:text-5xl tracking-wide">
+            <span className="text-[var(--cream)]">CÓDIGO </span>
+            <span className="text-[var(--lime)]">INVISÍVEL</span>
+          </span>
+        </div>
       </div>
       <WistiaVsl onReachThreshold={onReachThreshold} trackThreshold={trackThreshold} />
     </section>
@@ -80,7 +79,7 @@ function HeroContent() {
       <div className="absolute inset-0 opacity-[0.08] [background-image:radial-gradient(circle_at_20%_20%,var(--lime),transparent_40%),radial-gradient(circle_at_80%_60%,var(--lime),transparent_45%)]" />
       <div className="relative max-w-3xl mx-auto px-6 pt-5 pb-16 text-center">
         <h1 className="text-2xl sm:text-4xl md:text-5xl font-extrabold leading-[1.15] sm:leading-[1.1]">
-          O playbook que ensina a <span className="text-[var(--lime)]">ler o comportamento</span> do cliente e reduzir objeções sem precisar pressionar para vender.
+          O Código Invisível ensina a <span className="text-[var(--lime)]">ler o comportamento</span> do cliente e reduzir objeções sem precisar pressionar para vender.
         </h1>
         <p className="mt-6 text-base sm:text-lg text-[var(--cream)]/80 max-w-2xl mx-auto">
           Descubra como identificar o perfil emocional do cliente em poucos minutos e use isso para conduzir conversas e aumentar suas vendas.
@@ -107,7 +106,7 @@ function HeroContent() {
         </div>
 
         <a href="#receber" className="btn-cta btn-cta-sm mt-8" onClick={trackHeroInterest}>
-          QUERO ACESSAR O PLAYBOOK AGORA <ArrowRight className="w-4 h-4" />
+          QUERO ACESSAR O CÓDIGO INVISÍVEL AGORA <ArrowRight className="w-4 h-4" />
         </a>
         <p className="mt-3 text-xs text-[var(--cream)]/60">Acesso imediato após a compra • Material 100% digital</p>
       </div>
@@ -115,7 +114,7 @@ function HeroContent() {
       <div className="relative ticker py-3 overflow-hidden">
         <div className="flex gap-8 whitespace-nowrap animate-marquee">
           {Array.from({ length: 8 }).map((_, i) => (
-            <span key={i} className="text-sm">OBJEÇÃO ZERO · LEIA · ADAPTE · CONDUZA ·</span>
+            <span key={i} className="text-sm">CÓDIGO INVISÍVEL · LEIA · ADAPTE · CONDUZA ·</span>
           ))}
         </div>
       </div>
@@ -162,7 +161,7 @@ function Problem() {
             O problema é que a maioria dos vendedores tenta convencer sem antes entender o comportamento do cliente.
           </p>
           <p className="mt-3 text-sm sm:text-base lg:text-[17px] text-[var(--navy-deep)] leading-relaxed">
-            E é exatamente isso que o <strong>Playbook Objeção Zero</strong> resolve. Você vai aprender como identificar rapidamente o perfil comportamental do cliente, entender o que existe por trás das objeções e conduzir a conversa de forma estratégica, gerando mais confiança, conexão e fechamento.
+            E é exatamente isso que o <strong>Código Invisível</strong> resolve. Você vai aprender como identificar rapidamente o perfil comportamental do cliente, entender o que existe por trás das objeções e conduzir a conversa de forma estratégica, gerando mais confiança, conexão e fechamento.
           </p>
         </div>
       </div>
@@ -259,7 +258,7 @@ function Receive() {
 
         <div className="mt-10 text-center">
           <a href={CHECKOUT_URL} target="_blank" rel="noopener noreferrer" className="btn-cta" onClick={trackReceiveCheckout}>
-            QUERO O PLAYBOOK OBJEÇÃO ZERO <ArrowRight className="w-4 h-4" />
+            QUERO O CÓDIGO INVISÍVEL <ArrowRight className="w-4 h-4" />
           </a>
         </div>
       </div>
@@ -298,7 +297,7 @@ function Bonuses() {
 function Testimonials() {
   const items = [
     { quote: "Depois que aprendi a identificar o perfil do cliente, parei de tentar convencer todo mundo do mesmo jeito e comecei a fechar mais vendas.", title: "Minhas conversões melhoraram muito.", name: "Rafael Mendes", role: "Closer" },
-    { quote: "O playbook me ajudou a entender o que realmente existe por trás das objeções. Hoje minhas reuniões são muito mais estratégicas.", title: "Parei de ouvir tanto ‘vou pensar’.", name: "Juliana Freitas", role: "Consultora Comercial" },
+    { quote: "O Código Invisível me ajudou a entender o que realmente existe por trás das objeções. Hoje minhas reuniões são muito mais estratégicas.", title: "Parei de ouvir tanto ‘vou pensar’.", name: "Juliana Freitas", role: "Consultora Comercial" },
     { quote: "Aprendi a conduzir a conversa sem parecer insistente. Isso aumentou minha confiança e meus fechamentos.", title: "As vendas ficaram mais naturais.", name: "Lucas Andrade", role: "Executivo de Vendas" },
     { quote: "Aplicamos o método na operação e o time melhorou muito a comunicação e a condução das negociações.", title: "Minha equipe começou a vender melhor.", name: "Fernanda Oliveira", role: "Empresária" },
   ];
@@ -334,7 +333,7 @@ function Offer() {
       <div className="ticker py-2 absolute top-0 left-0 right-0 overflow-hidden">
         <div className="flex gap-8 whitespace-nowrap animate-marquee-fast text-xs">
           {Array.from({ length: 8 }).map((_, i) => (
-            <span key={i}>OBJEÇÃO ZERO · OBJEÇÃO ZERO · OBJEÇÃO ZERO ·</span>
+            <span key={i}>CÓDIGO INVISÍVEL · CÓDIGO INVISÍVEL · CÓDIGO INVISÍVEL ·</span>
           ))}
         </div>
       </div>
@@ -343,7 +342,7 @@ function Offer() {
         <div className="mt-5 text-base">Por apenas</div>
         <div className="mt-1 text-6xl sm:text-7xl font-extrabold font-display text-[var(--navy)] leading-none">R$97</div>
         <p className="mt-6 text-sm sm:text-base text-[var(--navy-deep)]/85 leading-relaxed">
-          Um único cliente fechado com o <strong>Playbook Objeção Zero</strong> já paga o seu investimento.
+          Um único cliente fechado com o <strong>Código Invisível</strong> já paga o seu investimento.
         </p>
         <a
           href={CHECKOUT_URL}
@@ -400,7 +399,7 @@ function Guarantee() {
 
 function Faq() {
   const items = [
-    { q: "Esse playbook serve apenas para vendedores?", a: "Não. Serve para empresários, closers, líderes, consultores e qualquer pessoa que precise melhorar comunicação e persuasão." },
+    { q: "O Código Invisível serve apenas para vendedores?", a: "Não. Serve para empresários, closers, líderes, consultores e qualquer pessoa que precise melhorar comunicação e persuasão." },
     { q: "O acesso é imediato?", a: "Sim. Após a confirmação da compra, o acesso é liberado automaticamente." },
     { q: "O conteúdo é muito técnico?", a: "Não. O material é direto ao ponto e extremamente prático." },
     { q: "Vou aprender perfil comportamental?", a: "Sim. O foco principal é ensinar como identificar e conduzir diferentes perfis comportamentais em vendas." },
@@ -522,7 +521,7 @@ function ExitIntentPopup() {
           ESPERE. NÃO FECHE A PÁGINA.
         </span>
         <h3 id="exit-popup-title" className="mt-4 text-2xl sm:text-3xl font-extrabold leading-tight">
-          Esse Playbook vai te fazer entender o comportamento de cada perfil do seu potencial cliente e te fazer <span className="text-[#16a34a]">VENDER MUITO</span> mais.
+          O Código Invisível vai te fazer entender o comportamento de cada perfil do seu potencial cliente e te fazer <span className="text-[#16a34a]">VENDER MUITO</span> mais.
         </h3>
         <p className="mt-4 text-sm text-[var(--muted-foreground)]">
           Não perca essa oportunidade.
@@ -544,7 +543,7 @@ function ExitIntentPopup() {
 function WhatsAppFloat() {
   return (
     <a
-      href="https://wa.me/556581325700?text=Ol%C3%A1!%20Vim%20da%20P%C3%A1gina%20do%20Playbook%20Obje%C3%A7%C3%A3o%20do%20Zero.%20Quero%20adquirir%20ele%20agora!"
+      href="https://wa.me/556581325700?text=Ol%C3%A1!%20Vim%20da%20P%C3%A1gina%20do%20C%C3%B3digo%20Invis%C3%ADvel.%20Quero%20adquirir%20ele%20agora!"
       target="_blank"
       rel="noopener noreferrer"
       aria-label="Falar no WhatsApp"

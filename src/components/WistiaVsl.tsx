@@ -1,5 +1,9 @@
-import { useEffect, useRef } from "react";
-import { REVEAL_AT_SECONDS, WISTIA_MEDIA_ID } from "@/lib/vsl-config";
+import { useEffect, useRef, useState } from "react";
+import {
+  REVEAL_AT_SECONDS,
+  WISTIA_MEDIA_ID,
+  WISTIA_SHARE_URL,
+} from "@/lib/vsl-config";
 import {
   trackVslPlay,
   trackVslProgressMilestone,
@@ -51,9 +55,22 @@ function isPlayingState(state: string): boolean {
   return state === "playing" || state === "play" || state === "buffering";
 }
 
+async function resolveMediaIdFromShareUrl(shareUrl: string): Promise<string | null> {
+  try {
+    const endpoint = `https://fast.wistia.com/oembed?url=${encodeURIComponent(shareUrl)}&format=json`;
+    const response = await fetch(endpoint);
+    if (!response.ok) return null;
+
+    const data = (await response.json()) as { html?: string };
+    const match = data.html?.match(/embed\/iframe\/([a-z0-9]+)/i);
+    return match?.[1] ?? null;
+  } catch {
+    return null;
+  }
+}
+
 interface WistiaVslProps {
   onReachThreshold: () => void;
-  /** Quando false, não dispara liberação por tempo — pixel da VSL continua ativo. */
   trackThreshold?: boolean;
 }
 
@@ -63,11 +80,93 @@ export function WistiaVsl({ onReachThreshold, trackThreshold = true }: WistiaVsl
   onReachThresholdRef.current = onReachThreshold;
   trackThresholdRef.current = trackThreshold;
 
+  const [mediaId, setMediaId] = useState<string | null>(null);
+  const [useShareIframe, setUseShareIframe] = useState(false);
+
   useEffect(() => {
-    loadWistiaScript();
+    let cancelled = false;
+
+    resolveMediaIdFromShareUrl(WISTIA_SHARE_URL).then((resolvedId) => {
+      if (cancelled) return;
+
+      if (resolvedId) {
+        setMediaId(resolvedId);
+        return;
+      }
+
+      setMediaId(WISTIA_MEDIA_ID);
+      setUseShareIframe(true);
+    });
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   useEffect(() => {
+    if (!useShareIframe) return;
+
+    let thresholdReached = false;
+    let playTracked = false;
+    let revealPointTracked = false;
+    const milestonesFired = new Set<number>();
+
+    const handleMessage = (event: MessageEvent) => {
+      if (!String(event.origin).includes("wistia")) return;
+
+      let payload: Record<string, unknown> | null = null;
+      try {
+        payload =
+          typeof event.data === "string"
+            ? (JSON.parse(event.data) as Record<string, unknown>)
+            : (event.data as Record<string, unknown>);
+      } catch {
+        return;
+      }
+
+      const eventName = String(payload.event ?? payload.method ?? "");
+      const currentTime = Number(payload.time ?? payload.seconds ?? 0);
+      const duration = Number(payload.duration ?? REVEAL_AT_SECONDS);
+
+      if (eventName === "play" && !playTracked) {
+        playTracked = true;
+        trackVslPlay(currentTime);
+      }
+
+      if (currentTime > 0) {
+        for (const milestone of VSL_PROGRESS_MILESTONES) {
+          if (milestonesFired.has(milestone)) continue;
+          const thresholdTime = (duration * milestone) / 100;
+          if (currentTime >= thresholdTime) {
+            milestonesFired.add(milestone);
+            trackVslProgressMilestone(milestone, currentTime, duration);
+          }
+        }
+
+        if (!revealPointTracked && currentTime >= REVEAL_AT_SECONDS) {
+          revealPointTracked = true;
+          trackVslRevealPoint(currentTime);
+        }
+
+        if (trackThresholdRef.current && !thresholdReached && currentTime >= REVEAL_AT_SECONDS) {
+          thresholdReached = true;
+          onReachThresholdRef.current();
+        }
+      }
+    };
+
+    window.addEventListener("message", handleMessage);
+    return () => window.removeEventListener("message", handleMessage);
+  }, [useShareIframe]);
+
+  useEffect(() => {
+    if (!mediaId || useShareIframe) return;
+    loadWistiaScript();
+  }, [mediaId, useShareIframe]);
+
+  useEffect(() => {
+    if (!mediaId || useShareIframe) return;
+
     let mounted = true;
     let video: WistiaVideo | null = null;
     let thresholdReached = false;
@@ -160,7 +259,7 @@ export function WistiaVsl({ onReachThreshold, trackThreshold = true }: WistiaVsl
     const initPlayer = () => {
       window._wq = window._wq || [];
       window._wq.push({
-        id: WISTIA_MEDIA_ID,
+        id: mediaId,
         onReady: (player) => {
           if (!mounted) return;
           video = player;
@@ -187,13 +286,40 @@ export function WistiaVsl({ onReachThreshold, trackThreshold = true }: WistiaVsl
         video.unbind("end", onEnd);
       }
     };
-  }, []);
+  }, [mediaId, useShareIframe]);
+
+  if (!mediaId) {
+    return (
+      <div id="vsl-section" className="vsl-player-wrap">
+        <div className="vsl-player-frame flex items-center justify-center text-[var(--cream)]/70 text-sm">
+          Carregando vídeo…
+        </div>
+      </div>
+    );
+  }
+
+  if (useShareIframe) {
+    return (
+      <div id="vsl-section" className="vsl-player-wrap">
+        <div className="vsl-player-frame">
+          <iframe
+            src={`${WISTIA_SHARE_URL}`}
+            title="Código Invisível — VSL"
+            allow="autoplay; fullscreen"
+            allowFullScreen
+            className="h-full w-full border-0"
+            style={{ position: "relative" }}
+          />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div id="vsl-section" className="vsl-player-wrap">
       <div className="vsl-player-frame">
         <div
-          className={`wistia_embed wistia_async_${WISTIA_MEDIA_ID} seo=false videoFoam=true`}
+          className={`wistia_embed wistia_async_${mediaId} seo=false videoFoam=true`}
           style={{ height: "100%", width: "100%", position: "relative" }}
         >
           &nbsp;

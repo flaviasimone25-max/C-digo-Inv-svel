@@ -13,11 +13,14 @@ dist-ssr
 .output
 .vercel
 extracted/
+html-version/
 *.zip
 .vinxi
 .tanstack/**
 .nitro
 *.local
+tools/
+preview/
 
 # Wrangler / Cloudflare
 .wrangler/
@@ -33,3 +36,4 @@ extracted/
 *.njsproj
 *.sln
 *.sw?
+.lovable/

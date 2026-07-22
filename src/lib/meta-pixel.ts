@@ -3,9 +3,9 @@ import { REVEAL_AT_SECONDS, WISTIA_MEDIA_ID } from "@/lib/vsl-config";
 export const META_PIXEL_ID = "1337417334622081";
 
 export const PRODUCT_PARAMS = {
-  content_name: "Playbook Objeção Zero",
+  content_name: "Código Invisível",
   content_category: "Educação / Vendas",
-  content_ids: ["playbook-objecao-zero"],
+  content_ids: ["codigo-invisivel"],
   content_type: "product",
   value: 97,
   currency: "BRL",

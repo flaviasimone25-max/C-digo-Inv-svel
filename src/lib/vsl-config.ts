@@ -2,10 +2,14 @@
 export const REVEAL_AT_SECONDS = 14 * 60 + 34;
 
 /** Chave usada no localStorage para persistir a liberação. */
-export const REVEAL_STORAGE_KEY = "objecao_zero_vsl_revealed";
+export const REVEAL_STORAGE_KEY = "codigo_invisivel_vsl_revealed";
 
 /** Validade do acesso liberado, em dias. */
 export const REVEAL_EXPIRATION_DAYS = 7;
 
-/** ID do vídeo Wistia (embed oficial). */
-export const WISTIA_MEDIA_ID = "8vari9g5pz";
+/** Link compartilhado do vídeo Wistia (0720). */
+export const WISTIA_SHARE_URL =
+  "https://flavia-simone25.wistia.com/s/e3txwvl86sprdmi";
+
+/** ID do embed Wistia — resolvido via oEmbed a partir do share link. */
+export const WISTIA_MEDIA_ID = "e3txwvl86sprdmi";

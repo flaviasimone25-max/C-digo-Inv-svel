@@ -1,13 +1,13 @@
 /** Metadados centralizados de SEO e compartilhamento social. */
 export const SITE_SEO = {
-  siteName: "Playbook Objeção Zero",
-  title: "Playbook Objeção Zero — Venda lendo o comportamento do cliente",
+  siteName: "Código Invisível",
+  title: "Código Invisível — Venda lendo o comportamento do cliente",
   description:
     "Aprenda a identificar perfis comportamentais, reduzir objeções e fechar mais vendas sem pressionar. Método prático da Trinus Business.",
   ogDescription:
-    "O playbook que ensina a ler o comportamento do cliente e reduzir objeções sem precisar pressionar para vender.",
+    "O Código Invisível ensina a ler o comportamento do cliente e reduzir objeções sem precisar pressionar para vender.",
   keywords: [
-    "playbook objeção zero",
+    "código invisível",
     "vendas",
     "objeções",
     "comportamento do cliente",
@@ -23,7 +23,7 @@ export const SITE_SEO = {
   twitterCard: "summary_large_image" as const,
   ogType: "website" as const,
   ogImagePath: "/og-share.jpg",
-  ogImageAlt: "Playbook Objeção Zero — Leia o comportamento do cliente e reduza objeções",
+  ogImageAlt: "Código Invisível — Leia o comportamento do cliente e reduza objeções",
   ogImageWidth: 1200,
   ogImageHeight: 630,
   themeColor: "#242424",
