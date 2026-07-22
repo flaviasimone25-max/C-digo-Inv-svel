@@ -7,9 +7,9 @@ export const REVEAL_STORAGE_KEY = "codigo_invisivel_vsl_revealed";
 /** Validade do acesso liberado, em dias. */
 export const REVEAL_EXPIRATION_DAYS = 7;
 
-/** Link compartilhado do vídeo Wistia (0720). */
+/** Link do vídeo Wistia. */
 export const WISTIA_SHARE_URL =
-  "https://flavia-simone25.wistia.com/s/e3txwvl86sprdmi";
+  "https://flavia-simone25.wistia.com/medias/xriht08ae7";
 
-/** ID do embed Wistia — resolvido via oEmbed a partir do share link. */
-export const WISTIA_MEDIA_ID = "e3txwvl86sprdmi";
+/** ID do embed Wistia (hashed media id). */
+export const WISTIA_MEDIA_ID = "xriht08ae7";
