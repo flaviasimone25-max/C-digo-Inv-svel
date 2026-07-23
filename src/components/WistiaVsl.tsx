@@ -1,5 +1,6 @@
+import { Volume2 } from "lucide-react";
 import "@/lib/wistia-vsl-init";
-import { useEffect, useRef, type ReactNode } from "react";
+import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import { REVEAL_AT_SECONDS } from "@/lib/vsl-config";
 import {
   ensureVslReadyBridge,
@@ -19,24 +20,42 @@ function isPlayingState(state: string): boolean {
 }
 
 function startPlaybackWithSound(player: WistiaVideo) {
-  const attempt = () => {
-    player.volume(1);
-    player.unmute();
-    if (!isPlayingState(player.state())) {
-      player.play();
-    }
-  };
-
-  attempt();
-  for (const delay of [50, 150, 400, 800, 1500, 3000]) {
-    window.setTimeout(attempt, delay);
+  player.volume(1);
+  player.unmute();
+  if (!isPlayingState(player.state())) {
+    player.play();
   }
 }
 
-function VslPlayerShell({ children }: { children: ReactNode }) {
+function shouldShowSoundPrompt(player: WistiaVideo): boolean {
+  return player.isMuted();
+}
+
+interface VslPlayerShellProps {
+  children: ReactNode;
+  showSoundPrompt: boolean;
+  onEnableSound: () => void;
+}
+
+function VslPlayerShell({ children, showSoundPrompt, onEnableSound }: VslPlayerShellProps) {
   return (
     <div id="vsl-section" className="vsl-player-wrap">
-      <div className="vsl-player-frame">{children}</div>
+      <div className="vsl-player-frame">
+        {children}
+        {showSoundPrompt && (
+          <button
+            type="button"
+            className="vsl-sound-overlay"
+            onClick={onEnableSound}
+            aria-label="Toque na tela para ativar o som"
+          >
+            <span className="vsl-sound-overlay__icon-wrap" aria-hidden="true">
+              <Volume2 className="vsl-sound-overlay__icon" />
+            </span>
+            <span className="vsl-sound-overlay__label">Toque na tela para ativar o som</span>
+          </button>
+        )}
+      </div>
     </div>
   );
 }
@@ -51,6 +70,21 @@ export function WistiaVsl({ onReachThreshold, trackThreshold = true }: WistiaVsl
   const trackThresholdRef = useRef(trackThreshold);
   onReachThresholdRef.current = onReachThreshold;
   trackThresholdRef.current = trackThreshold;
+
+  const videoRef = useRef<WistiaVideo | null>(null);
+  const [showSoundPrompt, setShowSoundPrompt] = useState(true);
+
+  const syncSoundPrompt = useCallback((player: WistiaVideo) => {
+    setShowSoundPrompt(shouldShowSoundPrompt(player));
+  }, []);
+
+  const handleEnableSound = useCallback(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    startPlaybackWithSound(video);
+    setShowSoundPrompt(false);
+  }, []);
 
   useEffect(() => {
     ensureVslReadyBridge();
@@ -122,7 +156,7 @@ export function WistiaVsl({ onReachThreshold, trackThreshold = true }: WistiaVsl
         trackVslPlay(video.time());
       }
 
-      startPlaybackWithSound(video);
+      syncSoundPrompt(video);
       checkProgress(video);
       startPolling();
     };
@@ -147,13 +181,17 @@ export function WistiaVsl({ onReachThreshold, trackThreshold = true }: WistiaVsl
     const onSilentPlaybackModeChange = (inSilentMode: unknown) => {
       if (!video) return;
       if (inSilentMode === true || inSilentMode === "true") {
-        startPlaybackWithSound(video);
+        setShowSoundPrompt(true);
       }
     };
 
     registerWistiaVslReady((player) => {
       video = player;
+      videoRef.current = player;
+
       startPlaybackWithSound(player);
+      window.setTimeout(() => syncSoundPrompt(player), 400);
+      window.setTimeout(() => syncSoundPrompt(player), 1200);
 
       player.bind("play", onPlay);
       player.bind("pause", onPause);
@@ -164,6 +202,7 @@ export function WistiaVsl({ onReachThreshold, trackThreshold = true }: WistiaVsl
 
     return () => {
       registerWistiaVslReady(null);
+      videoRef.current = null;
       stopPolling();
       if (video) {
         video.unbind("play", onPlay);
@@ -173,10 +212,10 @@ export function WistiaVsl({ onReachThreshold, trackThreshold = true }: WistiaVsl
         video.unbind("silentplaybackmodechange", onSilentPlaybackModeChange);
       }
     };
-  }, []);
+  }, [syncSoundPrompt]);
 
   return (
-    <VslPlayerShell>
+    <VslPlayerShell showSoundPrompt={showSoundPrompt} onEnableSound={handleEnableSound}>
       <iframe
         src={WISTIA_IFRAME_SRC}
         title="Código Invisível — VSL"
