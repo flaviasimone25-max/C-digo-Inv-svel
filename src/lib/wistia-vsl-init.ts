@@ -34,22 +34,11 @@ export function registerWistiaVslReady(handler: ReadyHandler | null) {
   }
 }
 
-export const WISTIA_IFRAME_SRC =
-  `https://fast.wistia.net/embed/iframe/${WISTIA_MEDIA_ID}` +
-  "?autoPlay=true" +
-  "&muted=false" +
-  "&silentAutoPlay=false" +
-  "&volume=100" +
-  "&videoFoam=true" +
-  "&controlsVisibleOnLoad=false" +
-  "&playbar=false" +
-  "&smallPlayButton=false" +
-  "&fullscreenButton=false" +
-  "&settingsControl=false" +
-  "&playSuspendedOffScreen=false" +
-  "&playsinline=true";
+export const WISTIA_EMBED_CLASS =
+  `wistia_embed wistia_async_${WISTIA_MEDIA_ID}` +
+  " seo=false videoFoam=true autoPlay=true muted=true silentAutoPlay=allow";
 
-/** Script síncrono no <head>, antes do E-v1.js — obrigatório para autoplay com som. */
+/** Script síncrono no <head>, antes do E-v1.js. */
 export function getWistiaQueueInitScript(): string {
   return `
 window._wq = window._wq || [];
@@ -58,8 +47,8 @@ window._wq.push({
   id: ${JSON.stringify(WISTIA_MEDIA_ID)},
   options: {
     autoPlay: true,
-    muted: false,
-    silentAutoPlay: false,
+    muted: true,
+    silentAutoPlay: "allow",
     volume: 1,
     controlsVisibleOnLoad: false,
     playbar: false,
@@ -88,4 +77,28 @@ declare global {
 
 export function ensureVslReadyBridge() {
   registerWistiaVslReady(readyHandler);
+}
+
+function loadWistiaScript(): Promise<void> {
+  if (typeof window === "undefined") return Promise.resolve();
+  if (window.Wistia) return Promise.resolve();
+
+  return new Promise((resolve) => {
+    const existing = document.querySelector<HTMLScriptElement>('script[src*="E-v1.js"]');
+    if (existing) {
+      if (window.Wistia) resolve();
+      else existing.addEventListener("load", () => resolve(), { once: true });
+      return;
+    }
+
+    const script = document.createElement("script");
+    script.src = "https://fast.wistia.net/assets/external/E-v1.js";
+    script.async = true;
+    script.onload = () => resolve();
+    document.head.appendChild(script);
+  });
+}
+
+export function ensureWistiaScriptLoaded() {
+  void loadWistiaScript();
 }

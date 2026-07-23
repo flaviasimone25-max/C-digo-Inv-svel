@@ -169,6 +169,14 @@
   .vsl-player-frame .wistia_swatch,
   .vsl-player-frame iframe {
     border-radius: 16px;
+    height: 100% !important;
+    width: 100% !important;
+  }
+
+  .vsl-player-frame .wistia_embed > div,
+  .vsl-player-frame .wistia_embed iframe {
+    height: 100% !important;
+    width: 100% !important;
   }
 
   .vsl-sound-overlay {

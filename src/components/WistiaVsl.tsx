@@ -4,8 +4,9 @@ import { useCallback, useEffect, useRef, useState, type ReactNode } from "react"
 import { REVEAL_AT_SECONDS } from "@/lib/vsl-config";
 import {
   ensureVslReadyBridge,
+  ensureWistiaScriptLoaded,
   registerWistiaVslReady,
-  WISTIA_IFRAME_SRC,
+  WISTIA_EMBED_CLASS,
   type WistiaVideo,
 } from "@/lib/wistia-vsl-init";
 import {
@@ -19,16 +20,35 @@ function isPlayingState(state: string): boolean {
   return state === "playing" || state === "play" || state === "buffering";
 }
 
-function startPlaybackWithSound(player: WistiaVideo) {
-  player.volume(1);
-  player.unmute();
+function ensureVideoPlaying(player: WistiaVideo) {
   if (!isPlayingState(player.state())) {
     player.play();
   }
 }
 
+function tryAutoplayWithSound(player: WistiaVideo) {
+  player.volume(1);
+  player.unmute();
+  ensureVideoPlaying(player);
+}
+
 function shouldShowSoundPrompt(player: WistiaVideo): boolean {
   return player.isMuted();
+}
+
+function hideWistiaNativeUnmute(root: ParentNode) {
+  root.querySelectorAll?.("button").forEach((button) => {
+    const label = (button.getAttribute("aria-label") ?? button.textContent ?? "").toLowerCase();
+    if (label.includes("unmute") || label.includes("ativar o som") || label.includes("ativar som")) {
+      button.style.setProperty("display", "none", "important");
+    }
+  });
+
+  root.querySelectorAll?.("*").forEach((element) => {
+    if (element instanceof HTMLElement && element.shadowRoot) {
+      hideWistiaNativeUnmute(element.shadowRoot);
+    }
+  });
 }
 
 interface VslPlayerShellProps {
@@ -82,8 +102,22 @@ export function WistiaVsl({ onReachThreshold, trackThreshold = true }: WistiaVsl
     const video = videoRef.current;
     if (!video) return;
 
-    startPlaybackWithSound(video);
+    tryAutoplayWithSound(video);
     setShowSoundPrompt(false);
+  }, []);
+
+  useEffect(() => {
+    ensureWistiaScriptLoaded();
+  }, []);
+
+  useEffect(() => {
+    const embedRoot = document.querySelector("#vsl-section .wistia_embed");
+    if (!embedRoot) return;
+
+    hideWistiaNativeUnmute(embedRoot);
+    const observer = new MutationObserver(() => hideWistiaNativeUnmute(embedRoot));
+    observer.observe(embedRoot, { childList: true, subtree: true });
+    return () => observer.disconnect();
   }, []);
 
   useEffect(() => {
@@ -181,6 +215,7 @@ export function WistiaVsl({ onReachThreshold, trackThreshold = true }: WistiaVsl
     const onSilentPlaybackModeChange = (inSilentMode: unknown) => {
       if (!video) return;
       if (inSilentMode === true || inSilentMode === "true") {
+        ensureVideoPlaying(video);
         setShowSoundPrompt(true);
       }
     };
@@ -189,9 +224,11 @@ export function WistiaVsl({ onReachThreshold, trackThreshold = true }: WistiaVsl
       video = player;
       videoRef.current = player;
 
-      startPlaybackWithSound(player);
-      window.setTimeout(() => syncSoundPrompt(player), 400);
-      window.setTimeout(() => syncSoundPrompt(player), 1200);
+      ensureVideoPlaying(player);
+      tryAutoplayWithSound(player);
+
+      window.setTimeout(() => syncSoundPrompt(player), 300);
+      window.setTimeout(() => syncSoundPrompt(player), 1000);
 
       player.bind("play", onPlay);
       player.bind("pause", onPause);
@@ -216,14 +253,12 @@ export function WistiaVsl({ onReachThreshold, trackThreshold = true }: WistiaVsl
 
   return (
     <VslPlayerShell showSoundPrompt={showSoundPrompt} onEnableSound={handleEnableSound}>
-      <iframe
-        src={WISTIA_IFRAME_SRC}
-        title="Código Invisível — VSL"
-        allow="autoplay; fullscreen; encrypted-media; picture-in-picture"
-        allowFullScreen
-        className="h-full w-full border-0"
-        style={{ position: "relative" }}
-      />
+      <div
+        className={WISTIA_EMBED_CLASS}
+        style={{ height: "100%", width: "100%", position: "relative" }}
+      >
+        &nbsp;
+      </div>
     </VslPlayerShell>
   );
 }
