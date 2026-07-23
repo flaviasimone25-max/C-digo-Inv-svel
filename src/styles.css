@@ -171,6 +171,35 @@
     border-radius: 16px;
   }
 
+  .vsl-sound-button {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    z-index: 50;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 56px;
+    height: 56px;
+    border: none;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.78);
+    color: #fff;
+    cursor: pointer;
+    transform: translate(-50%, -50%);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+    transition: transform 0.15s ease, opacity 0.2s ease;
+  }
+
+  .vsl-sound-button:hover {
+    transform: translate(-50%, -50%) scale(1.05);
+  }
+
+  .vsl-sound-button__icon {
+    width: 26px;
+    height: 26px;
+  }
+
   @media (max-width: 768px) {
     .vsl-player-wrap {
       max-width: none;

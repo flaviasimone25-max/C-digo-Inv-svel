@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState } from "react";
+import { Volume2 } from "lucide-react";
+import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import {
   REVEAL_AT_SECONDS,
   WISTIA_MEDIA_ID,
@@ -15,6 +16,9 @@ interface WistiaVideo {
   time(): number;
   duration(): number;
   state(): string;
+  play(): void;
+  unmute(): void;
+  isMuted(): boolean;
   bind(event: string, callback: (...args: unknown[]) => void): void;
   unbind(event: string, callback?: (...args: unknown[]) => void): void;
 }
@@ -69,6 +73,47 @@ async function resolveMediaIdFromShareUrl(shareUrl: string): Promise<string | nu
   }
 }
 
+function hideWistiaNativeUnmute(root: ParentNode) {
+  root.querySelectorAll?.("button").forEach((button) => {
+    const label = (button.getAttribute("aria-label") ?? button.textContent ?? "").toLowerCase();
+    if (label.includes("unmute") || label.includes("ativar o som") || label.includes("ativar som")) {
+      button.style.setProperty("display", "none", "important");
+    }
+  });
+
+  root.querySelectorAll?.("*").forEach((element) => {
+    if (element instanceof HTMLElement && element.shadowRoot) {
+      hideWistiaNativeUnmute(element.shadowRoot);
+    }
+  });
+}
+
+interface VslPlayerShellProps {
+  children: ReactNode;
+  showSoundButton: boolean;
+  onEnableSound: () => void;
+}
+
+function VslPlayerShell({ children, showSoundButton, onEnableSound }: VslPlayerShellProps) {
+  return (
+    <div id="vsl-section" className="vsl-player-wrap">
+      <div className="vsl-player-frame">
+        {children}
+        {showSoundButton && (
+          <button
+            type="button"
+            className="vsl-sound-button"
+            onClick={onEnableSound}
+            aria-label="Ativar som do vídeo"
+          >
+            <Volume2 className="vsl-sound-button__icon" aria-hidden="true" />
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
+
 interface WistiaVslProps {
   onReachThreshold: () => void;
   trackThreshold?: boolean;
@@ -82,6 +127,29 @@ export function WistiaVsl({ onReachThreshold, trackThreshold = true }: WistiaVsl
 
   const [mediaId, setMediaId] = useState<string | null>(null);
   const [useShareIframe, setUseShareIframe] = useState(false);
+  const [soundButtonVisible, setSoundButtonVisible] = useState(true);
+  const videoRef = useRef<WistiaVideo | null>(null);
+  const iframeRef = useRef<HTMLIFrameElement | null>(null);
+
+  const handleEnableSound = useCallback(() => {
+    const video = videoRef.current;
+
+    if (video) {
+      video.unmute();
+      if (!isPlayingState(video.state())) {
+        video.play();
+      }
+    }
+
+    if (useShareIframe && iframeRef.current) {
+      iframeRef.current.contentWindow?.postMessage(
+        JSON.stringify({ method: "unmute" }),
+        "*",
+      );
+    }
+
+    setSoundButtonVisible(false);
+  }, [useShareIframe]);
 
   useEffect(() => {
     let cancelled = false;
@@ -161,7 +229,18 @@ export function WistiaVsl({ onReachThreshold, trackThreshold = true }: WistiaVsl
 
   useEffect(() => {
     if (!mediaId || useShareIframe) return;
-    loadWistiaScript();
+
+    const embedRoot = document.querySelector("#vsl-section .wistia_embed");
+    if (!embedRoot) return;
+
+    hideWistiaNativeUnmute(embedRoot);
+
+    const observer = new MutationObserver(() => {
+      hideWistiaNativeUnmute(embedRoot);
+    });
+
+    observer.observe(embedRoot, { childList: true, subtree: true });
+    return () => observer.disconnect();
   }, [mediaId, useShareIframe]);
 
   useEffect(() => {
@@ -263,6 +342,10 @@ export function WistiaVsl({ onReachThreshold, trackThreshold = true }: WistiaVsl
         onReady: (player) => {
           if (!mounted) return;
           video = player;
+          videoRef.current = player;
+          if (!player.isMuted()) {
+            setSoundButtonVisible(false);
+          }
           player.bind("play", onPlay);
           player.bind("pause", onPause);
           player.bind("secondchange", onSecondChange);
@@ -278,6 +361,7 @@ export function WistiaVsl({ onReachThreshold, trackThreshold = true }: WistiaVsl
 
     return () => {
       mounted = false;
+      videoRef.current = null;
       stopPolling();
       if (video) {
         video.unbind("play", onPlay);
@@ -300,31 +384,31 @@ export function WistiaVsl({ onReachThreshold, trackThreshold = true }: WistiaVsl
 
   if (useShareIframe) {
     return (
-      <div id="vsl-section" className="vsl-player-wrap">
-        <div className="vsl-player-frame">
-          <iframe
-            src={`${WISTIA_SHARE_URL}`}
-            title="Código Invisível — VSL"
-            allow="autoplay; fullscreen"
-            allowFullScreen
-            className="h-full w-full border-0"
-            style={{ position: "relative" }}
-          />
-        </div>
-      </div>
+      <VslPlayerShell
+        showSoundButton={soundButtonVisible}
+        onEnableSound={handleEnableSound}
+      >
+        <iframe
+          ref={iframeRef}
+          src={`${WISTIA_SHARE_URL}`}
+          title="Código Invisível — VSL"
+          allow="autoplay; fullscreen"
+          allowFullScreen
+          className="h-full w-full border-0"
+          style={{ position: "relative" }}
+        />
+      </VslPlayerShell>
     );
   }
 
   return (
-    <div id="vsl-section" className="vsl-player-wrap">
-      <div className="vsl-player-frame">
-        <div
-          className={`wistia_embed wistia_async_${mediaId} seo=false videoFoam=true`}
-          style={{ height: "100%", width: "100%", position: "relative" }}
-        >
-          &nbsp;
-        </div>
+    <VslPlayerShell showSoundButton={soundButtonVisible} onEnableSound={handleEnableSound}>
+      <div
+        className={`wistia_embed wistia_async_${mediaId} seo=false videoFoam=true autoPlay=true muted=true`}
+        style={{ height: "100%", width: "100%", position: "relative" }}
+      >
+        &nbsp;
       </div>
-    </div>
+    </VslPlayerShell>
   );
 }
