@@ -10,6 +10,7 @@ import {
 
 import appCss from "../styles.css?url";
 import { META_PIXEL_ID, getMetaPixelInitScript } from "@/lib/meta-pixel";
+import { getWistiaQueueInitScript } from "@/lib/wistia-vsl-init";
 
 function NotFoundComponent() {
   return (
@@ -81,6 +82,13 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       },
     ],
     scripts: [
+      {
+        children: getWistiaQueueInitScript(),
+      },
+      {
+        src: "https://fast.wistia.net/assets/external/E-v1.js",
+        async: true,
+      },
       {
         children: getMetaPixelInitScript(),
       },

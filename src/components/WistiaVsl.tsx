@@ -1,9 +1,12 @@
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import "@/lib/wistia-vsl-init";
+import { useEffect, useRef, type ReactNode } from "react";
+import { REVEAL_AT_SECONDS } from "@/lib/vsl-config";
 import {
-  REVEAL_AT_SECONDS,
-  WISTIA_MEDIA_ID,
-  WISTIA_SHARE_URL,
-} from "@/lib/vsl-config";
+  ensureVslReadyBridge,
+  registerWistiaVslReady,
+  WISTIA_IFRAME_SRC,
+  type WistiaVideo,
+} from "@/lib/wistia-vsl-init";
 import {
   trackVslPlay,
   trackVslProgressMilestone,
@@ -11,88 +14,22 @@ import {
   VSL_PROGRESS_MILESTONES,
 } from "@/lib/meta-pixel";
 
-interface WistiaVideo {
-  time(): number;
-  duration(): number;
-  state(): string;
-  play(): void;
-  unmute(): void;
-  isMuted(): boolean;
-  volume(value?: number): number;
-  bind(event: string, callback: (...args: unknown[]) => void): void;
-  unbind(event: string, callback?: (...args: unknown[]) => void): void;
-}
-
-declare global {
-  interface Window {
-    _wq?: Array<{ id: string; onReady: (video: WistiaVideo) => void }>;
-    Wistia?: unknown;
-  }
-}
-
-let wistiaScriptPromise: Promise<void> | null = null;
-
-function loadWistiaScript(): Promise<void> {
-  if (typeof window === "undefined") return Promise.resolve();
-  if (window.Wistia) return Promise.resolve();
-  if (wistiaScriptPromise) return wistiaScriptPromise;
-
-  wistiaScriptPromise = new Promise((resolve) => {
-    const existing = document.querySelector<HTMLScriptElement>('script[src*="E-v1.js"]');
-    if (existing) {
-      if (window.Wistia) resolve();
-      else existing.addEventListener("load", () => resolve(), { once: true });
-      return;
-    }
-
-    const script = document.createElement("script");
-    script.src = "https://fast.wistia.net/assets/external/E-v1.js";
-    script.async = true;
-    script.onload = () => resolve();
-    document.head.appendChild(script);
-  });
-
-  return wistiaScriptPromise;
-}
-
 function isPlayingState(state: string): boolean {
   return state === "playing" || state === "play" || state === "buffering";
 }
 
 function startPlaybackWithSound(player: WistiaVideo) {
-  player.volume(1);
-  player.unmute();
-  if (!isPlayingState(player.state())) {
-    player.play();
-  }
-}
-
-function hideWistiaUnmuteControls(root: ParentNode) {
-  root.querySelectorAll?.("button").forEach((button) => {
-    const label = (button.getAttribute("aria-label") ?? button.textContent ?? "").toLowerCase();
-    if (label.includes("unmute") || label.includes("ativar o som") || label.includes("ativar som")) {
-      button.style.setProperty("display", "none", "important");
+  const attempt = () => {
+    player.volume(1);
+    player.unmute();
+    if (!isPlayingState(player.state())) {
+      player.play();
     }
-  });
+  };
 
-  root.querySelectorAll?.("*").forEach((element) => {
-    if (element instanceof HTMLElement && element.shadowRoot) {
-      hideWistiaUnmuteControls(element.shadowRoot);
-    }
-  });
-}
-
-async function resolveMediaIdFromShareUrl(shareUrl: string): Promise<string | null> {
-  try {
-    const endpoint = `https://fast.wistia.com/oembed?url=${encodeURIComponent(shareUrl)}&format=json`;
-    const response = await fetch(endpoint);
-    if (!response.ok) return null;
-
-    const data = (await response.json()) as { html?: string };
-    const match = data.html?.match(/embed\/iframe\/([a-z0-9]+)/i);
-    return match?.[1] ?? null;
-  } catch {
-    return null;
+  attempt();
+  for (const delay of [50, 150, 400, 800, 1500, 3000]) {
+    window.setTimeout(attempt, delay);
   }
 }
 
@@ -115,124 +52,9 @@ export function WistiaVsl({ onReachThreshold, trackThreshold = true }: WistiaVsl
   onReachThresholdRef.current = onReachThreshold;
   trackThresholdRef.current = trackThreshold;
 
-  const [mediaId, setMediaId] = useState<string | null>(null);
-  const [useShareIframe, setUseShareIframe] = useState(false);
-  const videoRef = useRef<WistiaVideo | null>(null);
-  const iframeRef = useRef<HTMLIFrameElement | null>(null);
-
   useEffect(() => {
-    let cancelled = false;
+    ensureVslReadyBridge();
 
-    resolveMediaIdFromShareUrl(WISTIA_SHARE_URL).then((resolvedId) => {
-      if (cancelled) return;
-
-      if (resolvedId) {
-        setMediaId(resolvedId);
-        return;
-      }
-
-      setMediaId(WISTIA_MEDIA_ID);
-      setUseShareIframe(true);
-    });
-
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
-  useEffect(() => {
-    const tryEnableSoundOnInteraction = () => {
-      const video = videoRef.current;
-      if (video) {
-        startPlaybackWithSound(video);
-      }
-
-      if (useShareIframe && iframeRef.current) {
-        iframeRef.current.contentWindow?.postMessage(JSON.stringify({ method: "unmute" }), "*");
-        iframeRef.current.contentWindow?.postMessage(JSON.stringify({ method: "play" }), "*");
-      }
-    };
-
-    document.addEventListener("pointerdown", tryEnableSoundOnInteraction, { once: true });
-    return () => document.removeEventListener("pointerdown", tryEnableSoundOnInteraction);
-  }, [useShareIframe]);
-
-  useEffect(() => {
-    if (!useShareIframe) return;
-
-    let thresholdReached = false;
-    let playTracked = false;
-    let revealPointTracked = false;
-    const milestonesFired = new Set<number>();
-
-    const handleMessage = (event: MessageEvent) => {
-      if (!String(event.origin).includes("wistia")) return;
-
-      let payload: Record<string, unknown> | null = null;
-      try {
-        payload =
-          typeof event.data === "string"
-            ? (JSON.parse(event.data) as Record<string, unknown>)
-            : (event.data as Record<string, unknown>);
-      } catch {
-        return;
-      }
-
-      const eventName = String(payload.event ?? payload.method ?? "");
-      const currentTime = Number(payload.time ?? payload.seconds ?? 0);
-      const duration = Number(payload.duration ?? REVEAL_AT_SECONDS);
-
-      if (eventName === "play" && !playTracked) {
-        playTracked = true;
-        trackVslPlay(currentTime);
-      }
-
-      if (currentTime > 0) {
-        for (const milestone of VSL_PROGRESS_MILESTONES) {
-          if (milestonesFired.has(milestone)) continue;
-          const thresholdTime = (duration * milestone) / 100;
-          if (currentTime >= thresholdTime) {
-            milestonesFired.add(milestone);
-            trackVslProgressMilestone(milestone, currentTime, duration);
-          }
-        }
-
-        if (!revealPointTracked && currentTime >= REVEAL_AT_SECONDS) {
-          revealPointTracked = true;
-          trackVslRevealPoint(currentTime);
-        }
-
-        if (trackThresholdRef.current && !thresholdReached && currentTime >= REVEAL_AT_SECONDS) {
-          thresholdReached = true;
-          onReachThresholdRef.current();
-        }
-      }
-    };
-
-    window.addEventListener("message", handleMessage);
-    return () => window.removeEventListener("message", handleMessage);
-  }, [useShareIframe]);
-
-  useEffect(() => {
-    if (!mediaId || useShareIframe) return;
-
-    const embedRoot = document.querySelector("#vsl-section .wistia_embed");
-    if (!embedRoot) return;
-
-    hideWistiaUnmuteControls(embedRoot);
-
-    const observer = new MutationObserver(() => {
-      hideWistiaUnmuteControls(embedRoot);
-    });
-
-    observer.observe(embedRoot, { childList: true, subtree: true });
-    return () => observer.disconnect();
-  }, [mediaId, useShareIframe]);
-
-  useEffect(() => {
-    if (!mediaId || useShareIframe) return;
-
-    let mounted = true;
     let video: WistiaVideo | null = null;
     let thresholdReached = false;
     let playTracked = false;
@@ -300,6 +122,7 @@ export function WistiaVsl({ onReachThreshold, trackThreshold = true }: WistiaVsl
         trackVslPlay(video.time());
       }
 
+      startPlaybackWithSound(video);
       checkProgress(video);
       startPolling();
     };
@@ -321,79 +144,47 @@ export function WistiaVsl({ onReachThreshold, trackThreshold = true }: WistiaVsl
       tryRevealThreshold(video);
     };
 
-    const initPlayer = () => {
-      window._wq = window._wq || [];
-      window._wq.push({
-        id: mediaId,
-        onReady: (player) => {
-          if (!mounted) return;
-          video = player;
-          videoRef.current = player;
-          startPlaybackWithSound(player);
-          player.bind("play", onPlay);
-          player.bind("pause", onPause);
-          player.bind("secondchange", onSecondChange);
-          player.bind("end", onEnd);
-        },
-      });
+    const onSilentPlaybackModeChange = (inSilentMode: unknown) => {
+      if (!video) return;
+      if (inSilentMode === true || inSilentMode === "true") {
+        startPlaybackWithSound(video);
+      }
     };
 
-    loadWistiaScript().then(() => {
-      if (!mounted) return;
-      initPlayer();
+    registerWistiaVslReady((player) => {
+      video = player;
+      startPlaybackWithSound(player);
+
+      player.bind("play", onPlay);
+      player.bind("pause", onPause);
+      player.bind("secondchange", onSecondChange);
+      player.bind("end", onEnd);
+      player.bind("silentplaybackmodechange", onSilentPlaybackModeChange);
     });
 
     return () => {
-      mounted = false;
-      videoRef.current = null;
+      registerWistiaVslReady(null);
       stopPolling();
       if (video) {
         video.unbind("play", onPlay);
         video.unbind("pause", onPause);
         video.unbind("secondchange", onSecondChange);
         video.unbind("end", onEnd);
+        video.unbind("silentplaybackmodechange", onSilentPlaybackModeChange);
       }
     };
-  }, [mediaId, useShareIframe]);
-
-  const iframeSrc = mediaId
-    ? `https://fast.wistia.net/embed/iframe/${mediaId}?autoPlay=true&muted=false&videoFoam=true&controlsVisibleOnLoad=false`
-    : WISTIA_SHARE_URL;
-
-  if (!mediaId) {
-    return (
-      <div id="vsl-section" className="vsl-player-wrap">
-        <div className="vsl-player-frame flex items-center justify-center text-[var(--cream)]/70 text-sm">
-          Carregando vídeo…
-        </div>
-      </div>
-    );
-  }
-
-  if (useShareIframe) {
-    return (
-      <VslPlayerShell>
-        <iframe
-          ref={iframeRef}
-          src={iframeSrc}
-          title="Código Invisível — VSL"
-          allow="autoplay; fullscreen"
-          allowFullScreen
-          className="h-full w-full border-0"
-          style={{ position: "relative" }}
-        />
-      </VslPlayerShell>
-    );
-  }
+  }, []);
 
   return (
     <VslPlayerShell>
-      <div
-        className={`wistia_embed wistia_async_${mediaId} seo=false videoFoam=true autoPlay=true muted=false`}
-        style={{ height: "100%", width: "100%", position: "relative" }}
-      >
-        &nbsp;
-      </div>
+      <iframe
+        src={WISTIA_IFRAME_SRC}
+        title="Código Invisível — VSL"
+        allow="autoplay; fullscreen; encrypted-media; picture-in-picture"
+        allowFullScreen
+        className="h-full w-full border-0"
+        style={{ position: "relative" }}
+      />
     </VslPlayerShell>
   );
 }
