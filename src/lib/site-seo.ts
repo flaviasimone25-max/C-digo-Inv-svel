@@ -22,10 +22,11 @@ export const SITE_SEO = {
   language: "pt-BR",
   twitterCard: "summary_large_image" as const,
   ogType: "website" as const,
-  ogImagePath: "/og-share.jpg",
-  ogImageAlt: "Código Invisível — Leia o comportamento do cliente e reduza objeções",
-  ogImageWidth: 1200,
-  ogImageHeight: 630,
+  ogImagePath: "/og-share.png",
+  ogImageAlt: "Código Invisível — Método Trinus Business para vender lendo o comportamento do cliente",
+  ogImageType: "image/png" as const,
+  ogImageWidth: 1024,
+  ogImageHeight: 1536,
   themeColor: "#242424",
   robots: "index, follow",
 };
@@ -36,7 +37,7 @@ export function getSiteUrl(): string {
   if (fromEnv && typeof fromEnv === "string" && fromEnv.trim()) {
     return fromEnv.replace(/\/$/, "");
   }
-  return "https://flaviaebookobjecao.vercel.app";
+  return "https://codigoinvisible.vercel.app";
 }
 
 export function getAbsoluteUrl(path = ""): string {
@@ -85,7 +86,7 @@ export function buildSeoMeta(path = "/") {
       { property: "og:url", content: url },
       { property: "og:image", content: image },
       { property: "og:image:secure_url", content: image },
-      { property: "og:image:type", content: "image/jpeg" },
+      { property: "og:image:type", content: SITE_SEO.ogImageType },
       { property: "og:image:width", content: String(SITE_SEO.ogImageWidth) },
       { property: "og:image:height", content: String(SITE_SEO.ogImageHeight) },
       { property: "og:image:alt", content: SITE_SEO.ogImageAlt },
@@ -99,7 +100,7 @@ export function buildSeoMeta(path = "/") {
     links: [
       { rel: "canonical", href: url },
       { rel: "icon", href: "/favicon.webp", type: "image/webp" },
-      { rel: "apple-touch-icon", href: "/og-share.jpg" },
+      { rel: "apple-touch-icon", href: "/og-share.png" },
     ],
     scripts: [
       {

@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://flaviaebookobjecao.vercel.app/sitemap.xml
+Sitemap: https://codigoinvisible.vercel.app/sitemap.xml
