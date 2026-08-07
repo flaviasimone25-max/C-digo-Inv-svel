@@ -113,10 +113,20 @@ function CopyInsight() {
         <p className="text-sm sm:text-base text-[var(--muted-foreground)] leading-relaxed">
           Já reparou que o cliente que mais te irrita é aquele com o comportamento totalmente oposto ao seu?
         </p>
-        <div className="space-y-3 text-sm sm:text-base leading-relaxed">
-          <p>Se você é direto e acelerado, odeia o cliente que pede mil detalhes.</p>
-          <p>Se você busca conexão, trava diante do cliente frio que só quer saber do preço.</p>
-        </div>
+        <ul className="space-y-3 text-sm sm:text-base leading-relaxed">
+          <li className="flex gap-2.5">
+            <span className="text-[var(--lime)] font-extrabold shrink-0">•</span>
+            <span>
+              <strong>Se você é direto e acelerado:</strong> Odeia o cliente que pede mil detalhes.
+            </span>
+          </li>
+          <li className="flex gap-2.5">
+            <span className="text-[var(--lime)] font-extrabold shrink-0">•</span>
+            <span>
+              <strong>Se você busca conexão:</strong> Trava diante do cliente frio que só quer saber do preço.
+            </span>
+          </li>
+        </ul>
         <p className="text-sm sm:text-base font-bold leading-relaxed">
           A verdade é simples: você só consegue vender com facilidade para quem compra igual a você. Para todos os outros, você toma rejeição.
         </p>
@@ -124,9 +134,20 @@ function CopyInsight() {
           <p className="text-sm sm:text-base leading-relaxed">
             O <strong>Código Invisível</strong> não é mais um curso com roteiros engessados que ninguém usa. É um guia prático de venda comportamental para você identificar o perfil exato do seu cliente em segundos e conduzir a negociação sem parecer que está empurrando nada.
           </p>
-          <p className="text-sm sm:text-base font-extrabold text-[var(--navy)]">
-            Domine a leitura comportamental, pare de perder vendas para o “vou pensar” e dobre sua conversão por apenas R$ {PRODUCT_PRICE},00.
+          <p className="text-sm sm:text-base font-extrabold text-[var(--navy)] leading-relaxed">
+            Domine a <strong>leitura comportamental</strong>, pare de perder vendas para o <strong>“vou pensar”</strong> e aumente sua conversão por apenas R$ {PRODUCT_PRICE},00.
           </p>
+        </div>
+        <div className="pt-2 text-center">
+          <a
+            href={CHECKOUT_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn-cta w-full sm:w-auto"
+            onClick={trackReceiveCheckout}
+          >
+            SIM, QUERO PARAR DE PERDER VENDAS POR R$ {PRODUCT_PRICE} <ArrowRight className="w-4 h-4" />
+          </a>
         </div>
       </div>
     </section>
