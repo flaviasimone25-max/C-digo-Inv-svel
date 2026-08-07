@@ -1,11 +1,11 @@
 /** Metadados centralizados de SEO e compartilhamento social. */
 export const SITE_SEO = {
   siteName: "Código Invisível",
-  title: "Código Invisível — Pare de tomar 'não' por falar errado com o cliente",
+  title: "Código Invisível | Pare de tomar 'não' por falar errado com o cliente",
   description:
     "Identifique o perfil comportamental do cliente em segundos e conduza a negociação sem roteiros decorados. Guia prático por R$ 47,00.",
   ogDescription:
-    "Cansei de ouvir 'NÃO' dos meus clientes — até entender que o problema era como eu falava com eles. Leia o perfil, adapte e conduza.",
+    "Cansei de ouvir 'NÃO' dos meus clientes. Até entender que o problema era como eu falava com eles. Leia o perfil, adapte e conduza.",
   keywords: [
     "código invisível",
     "vendas",
@@ -23,7 +23,7 @@ export const SITE_SEO = {
   twitterCard: "summary_large_image" as const,
   ogType: "website" as const,
   ogImagePath: "/og-share.png",
-  ogImageAlt: "Código Invisível — Método Trinus Business para vender lendo o comportamento do cliente",
+  ogImageAlt: "Código Invisível | Método Trinus Business para vender lendo o comportamento do cliente",
   ogImageType: "image/png" as const,
   ogImageWidth: 1024,
   ogImageHeight: 1536,

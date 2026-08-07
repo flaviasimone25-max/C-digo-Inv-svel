@@ -61,8 +61,14 @@ function DirectHero() {
           </span>
         </div>
 
+        <div className="my-6 sm:my-8 py-5 sm:py-6 px-4 rounded-2xl bg-[var(--lime)] text-[var(--navy-deep)] shadow-[0_20px_50px_-20px_oklch(0.78_0.13_85/0.8)]">
+          <p className="text-[clamp(2rem,8vw,4.5rem)] font-extrabold font-display tracking-tight leading-[0.95] uppercase">
+            Rejeição<br className="sm:hidden" /> Nunca Mais
+          </p>
+        </div>
+
         <h1 className="text-2xl sm:text-4xl md:text-[42px] font-extrabold leading-[1.15] sm:leading-[1.1]">
-          Cansei de ouvir <span className="text-[var(--lime)]">“NÃO”</span> dos meus clientes — até entender que o problema era como eu falava com eles.
+          Cansei de ouvir <span className="text-[var(--lime)]">“NÃO”</span> dos meus clientes. Até entender que o problema era como eu falava com eles.
         </h1>
         <p className="mt-6 text-base sm:text-lg text-[var(--cream)]/85 max-w-2xl mx-auto leading-relaxed">
           Todo vendedor tem aquele perfil de cliente que o irrita. O segredo? A dor que te irrita no cliente é exatamente onde o seu faturamento está travado.
@@ -89,7 +95,7 @@ function DirectHero() {
       <div className="relative ticker py-3 overflow-hidden">
         <div className="flex gap-8 whitespace-nowrap animate-marquee">
           {Array.from({ length: 8 }).map((_, i) => (
-            <span key={i} className="text-sm">CÓDIGO INVISÍVEL · LEIA · ADAPTE · CONDUZA ·</span>
+            <span key={i} className="text-sm">REJEIÇÃO NUNCA MAIS · CÓDIGO INVISÍVEL · LEIA · ADAPTE · CONDUZA ·</span>
           ))}
         </div>
       </div>
@@ -131,8 +137,8 @@ function MethodPreview() {
   const profiles = [
     { icon: Fish, name: "Tubarão", tag: "Executor", desc: "Odeia enrolação e detalhes desnecessários. Pressione um Tubarão e ele dirá “não”." },
     { icon: Shield, name: "Lobo", tag: "Analítico", desc: "Precisa de segurança e dados. Seja vago e ele vai sumir pedindo para “pensar”." },
-    { icon: Heart, name: "Gato", tag: "Emocional", desc: "Busca conexão humana. Trate-o de forma fria e a venda morre." },
-    { icon: Sparkles, name: "Águia", tag: "Visionário", desc: "Quer liberdade e soluções amplas. Tente controlá-lo e ele recusa." },
+    { icon: Heart, name: "Gato", tag: "Emocional", desc: "Busca conexão humana. Trate o de forma fria e a venda morre." },
+    { icon: Sparkles, name: "Águia", tag: "Visionário", desc: "Quer liberdade e soluções amplas. Tente controlar e ele recusa." },
   ];
   const pillars = [
     { icon: Eye, title: "Leitura Humana", desc: "Identifique o perfil do cliente em segundos, antes do primeiro “não”." },
@@ -189,7 +195,7 @@ function MethodPreview() {
 
 function Problem() {
   const pains = [
-    "Você fez tudo certo na conversa — e mesmo assim ouviu “não”.",
+    "Você fez tudo certo na conversa e mesmo assim ouviu “não”.",
     "Você tenta vender do seu jeito para clientes que compram de formas completamente diferentes.",
     "Você perde comissão toda semana porque não sabe contornar o perfil que mais te irrita.",
   ];
@@ -209,10 +215,10 @@ function Problem() {
         </div>
         <div>
           <h2 className="mt-3 text-2xl sm:text-4xl lg:text-[40px] font-extrabold text-[var(--navy-deep)] leading-[1.15]">
-            Você escuta <span className="text-[var(--navy)]">“não”</span>… e não sabe o que mudou na conversa.
+            Você escuta <span className="text-[var(--navy)]">“não”</span> e não sabe o que mudou na conversa.
           </h2>
           <p className="mt-5 text-sm sm:text-base lg:text-[17px] text-[var(--muted-foreground)] leading-relaxed">
-            O cliente demonstra interesse, mas some no meio da negociação. Você sente que a venda poderia ter acontecido — mas o perfil dele simplesmente não conectou com o seu jeito de vender.
+            O cliente demonstra interesse, mas some no meio da negociação. Você sente que a venda poderia ter acontecido, mas o perfil dele simplesmente não conectou com o seu jeito de vender.
           </p>
           <div className="mt-6 space-y-4">
             {pains.map((p) => (
@@ -226,7 +232,7 @@ function Problem() {
             O problema não é falta de esforço. É vender para todo mundo da mesma forma.
           </p>
           <p className="mt-3 text-sm sm:text-base lg:text-[17px] text-[var(--navy-deep)] leading-relaxed">
-            O <strong>Código Invisível</strong> te ensina a ler o perfil comportamental em segundos, adaptar seu tom antes do primeiro “não” e conduzir a negociação com estratégia — não com roteiro decorado.
+            O <strong>Código Invisível</strong> te ensina a ler o perfil comportamental em segundos, adaptar seu tom antes do primeiro “não” e conduzir a negociação com estratégia, não com roteiro decorado.
           </p>
         </div>
       </div>
@@ -265,8 +271,8 @@ function About() {
           </p>
           <div className="mt-7 grid grid-cols-3 gap-2 sm:gap-3">
             {[
-              { k: "+10", v: "anos de carreira" },
-              { k: "1000+", v: "vendedores treinados" },
+              { k: "+15", v: "anos de carreira" },
+              { k: "+1000", v: "vendedores treinados" },
               { k: "Método PAR", v: "exclusivo" },
             ].map((s) => (
               <div key={s.v} className="rounded-2xl bg-[var(--lime)] p-3 sm:p-4 text-center text-[var(--navy-deep)] flex flex-col items-center justify-center min-h-[96px]">
@@ -298,7 +304,7 @@ function Receive() {
             Tudo o que está incluído
           </h2>
           <p className="mt-4 text-[var(--muted-foreground)]">
-            Um guia prático de venda comportamental — sem roteiros decorados — para vendedores, closers, empresários e equipes comerciais.
+            Um guia prático de venda comportamental, sem roteiros decorados, para vendedores, closers, empresários e equipes comerciais.
           </p>
         </div>
 
@@ -398,12 +404,15 @@ function Offer() {
       <div className="ticker py-2 absolute top-0 left-0 right-0 overflow-hidden">
         <div className="flex gap-8 whitespace-nowrap animate-marquee-fast text-xs">
           {Array.from({ length: 8 }).map((_, i) => (
-            <span key={i}>CÓDIGO INVISÍVEL · CÓDIGO INVISÍVEL · CÓDIGO INVISÍVEL ·</span>
+            <span key={i}>REJEIÇÃO NUNCA MAIS · CÓDIGO INVISÍVEL · R$ {PRODUCT_PRICE} ·</span>
           ))}
         </div>
       </div>
       <div className="max-w-md mx-auto mt-10 rounded-3xl bg-[var(--lime)] p-8 sm:p-10 text-center text-[var(--navy-deep)] shadow-[0_30px_60px_-20px_oklch(0.78_0.13_85/0.6)]">
-        <h3 className="text-3xl sm:text-4xl font-extrabold font-display text-[var(--navy)]">Investimento</h3>
+        <p className="text-2xl sm:text-3xl font-extrabold font-display uppercase tracking-tight text-[var(--navy-deep)]">
+          Rejeição Nunca Mais
+        </p>
+        <h3 className="mt-4 text-3xl sm:text-4xl font-extrabold font-display text-[var(--navy)]">Investimento</h3>
         <div className="mt-5 text-base">Por apenas</div>
         <div className="mt-1 text-6xl sm:text-7xl font-extrabold font-display text-[var(--navy)] leading-none">R${PRODUCT_PRICE}</div>
         <p className="mt-6 text-sm sm:text-base text-[var(--navy-deep)]/85 leading-relaxed">
@@ -478,7 +487,7 @@ function Faq() {
     <section className="section-deferred py-12 sm:py-14 px-6 bg-[var(--cream)]">
       <div className="max-w-3xl mx-auto">
         <div className="text-center">
-          <span className="text-xs font-bold tracking-[0.3em] text-[var(--navy)]">F.A.Q.</span>
+          <span className="text-xs font-bold tracking-[0.3em] text-[var(--navy)]">PERGUNTAS FREQUENTES</span>
           <h2 className="mt-3 text-3xl sm:text-4xl font-extrabold text-[var(--navy-deep)]">Dúvidas frequentes</h2>
         </div>
         <div className="mt-10 space-y-3">
