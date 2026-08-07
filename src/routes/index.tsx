@@ -71,7 +71,7 @@ function DirectHero() {
           Cansei de ouvir <span className="text-[var(--lime)]">“NÃO”</span> dos meus clientes. Até entender que o problema era como eu falava com eles.
         </h1>
         <p className="mt-6 text-base sm:text-lg text-[var(--cream)]/85 max-w-2xl mx-auto leading-relaxed">
-          Todo vendedor tem aquele perfil de cliente que o irrita. O segredo? A dor que te irrita no cliente é exatamente onde o seu faturamento está travado.
+          Você só vende com facilidade para quem pensa como você. O problema é que metade dos seus clientes pensa totalmente diferente.
         </p>
 
         <div className="mt-8 rounded-2xl border border-white/10 bg-white/[0.04] p-5 sm:p-6 text-left max-w-2xl mx-auto space-y-4 text-sm sm:text-[15px] text-[var(--cream)]/90 leading-relaxed">
