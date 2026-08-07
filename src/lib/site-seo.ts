@@ -1,11 +1,11 @@
 /** Metadados centralizados de SEO e compartilhamento social. */
 export const SITE_SEO = {
   siteName: "Código Invisível",
-  title: "Código Invisível — Venda lendo o comportamento do cliente",
+  title: "Código Invisível — Pare de tomar 'não' por falar errado com o cliente",
   description:
-    "Aprenda a identificar perfis comportamentais, reduzir objeções e fechar mais vendas sem pressionar. Método prático da Trinus Business.",
+    "Identifique o perfil comportamental do cliente em segundos e conduza a negociação sem roteiros decorados. Guia prático por R$ 47,00.",
   ogDescription:
-    "O Código Invisível ensina a ler o comportamento do cliente e reduzir objeções sem precisar pressionar para vender.",
+    "Cansei de ouvir 'NÃO' dos meus clientes — até entender que o problema era como eu falava com eles. Leia o perfil, adapte e conduza.",
   keywords: [
     "código invisível",
     "vendas",
@@ -61,10 +61,10 @@ export function buildSeoMeta(path = "/") {
     },
     offers: {
       "@type": "Offer",
-      price: "97",
+      price: "47",
       priceCurrency: "BRL",
       availability: "https://schema.org/InStock",
-      url: "https://pay.kiwify.com.br/FGxNNX7",
+      url: "https://pay.kiwify.com.br/iHhPo3j",
     },
   };
 

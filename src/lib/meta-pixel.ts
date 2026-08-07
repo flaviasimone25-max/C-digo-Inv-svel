@@ -7,7 +7,7 @@ export const PRODUCT_PARAMS = {
   content_category: "Educação / Vendas",
   content_ids: ["codigo-invisivel"],
   content_type: "product",
-  value: 97,
+  value: 47,
   currency: "BRL",
 } as const;
 
@@ -60,12 +60,11 @@ export function trackMetaCustomEvent(event: string, params?: Record<string, unkn
   window.fbq("trackCustom", event, { ...PRODUCT_PARAMS, ...params });
 }
 
-/** ViewContent ao carregar a landing com VSL visível. */
+/** ViewContent ao carregar a landing. */
 export function trackVslLandingView() {
   trackMetaEvent("ViewContent", {
-    source: "vsl-landing",
-    content_type: "video_landing",
-    video_id: WISTIA_MEDIA_ID,
+    source: "direct-landing",
+    content_type: "product_landing",
   });
 }
 
@@ -178,6 +177,7 @@ export const SECTION_PIXEL_EVENTS: {
   event: MetaStandardEvent;
   params?: Record<string, unknown>;
 }[] = [
+  { selector: "#metodo", event: "ViewContent", params: { source: "secao-metodo" } },
   { selector: "#receber", event: "CustomizeProduct", params: { source: "secao-conteudo" } },
   { selector: "#depoimentos", event: "Subscribe", params: { source: "depoimentos" } },
   { selector: "#sobre", event: "FindLocation", params: { source: "secao-sobre" } },

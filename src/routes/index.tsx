@@ -1,8 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Check, Flame, Brain, Target, Zap, MessageSquare, Gift, ChevronDown, Star, ArrowRight, X, XCircle, Award } from "lucide-react";
-import { useState, useEffect, useCallback, useRef } from "react";
-import { WistiaVsl } from "@/components/WistiaVsl";
-import { hasValidRevealAccess, saveRevealAccess } from "@/lib/vsl-reveal";
+import { Check, Flame, Brain, Target, Zap, MessageSquare, Gift, ChevronDown, Star, ArrowRight, X, XCircle, Award, Eye, Compass, Fish, Shield, Heart, Sparkles } from "lucide-react";
+import { useState, useEffect, useCallback } from "react";
 import { ENABLE_EXIT_POPUP, ENABLE_WHATSAPP_FLOAT } from "@/lib/feature-flags";
 import flaviaImg from "@/assets/flavia.webp";
 import frustradoImg from "@/assets/frustrado.webp";
@@ -17,10 +15,10 @@ import {
   trackHeroInterest,
   trackMetaEvent,
   trackOfferCheckout,
-  trackVslContentUnlocked,
   trackVslLandingView,
   trackReceiveCheckout,
   trackWhatsAppContact,
+  SECTION_PIXEL_EVENTS,
 } from "@/lib/meta-pixel";
 
 export const Route = createFileRoute("/")({
@@ -45,20 +43,15 @@ export const Route = createFileRoute("/")({
   component: SalesPage,
 });
 
-const CHECKOUT_URL = "https://pay.kiwify.com.br/FGxNNX7";
+const CHECKOUT_URL = "https://pay.kiwify.com.br/iHhPo3j";
+const PRODUCT_PRICE = 47;
 
-function VslHeroHeader({
-  onReachThreshold,
-  trackThreshold,
-}: {
-  onReachThreshold: () => void;
-  trackThreshold: boolean;
-}) {
+function DirectHero() {
   return (
-    <section className="vsl-hero-section relative overflow-hidden pb-10 sm:pb-12">
+    <section className="bg-[var(--navy-deep)] text-[var(--cream)] relative overflow-hidden">
       <div className="absolute inset-0 opacity-[0.08] [background-image:radial-gradient(circle_at_20%_20%,var(--lime),transparent_40%),radial-gradient(circle_at_80%_60%,var(--lime),transparent_45%)]" />
-      <div className="relative max-w-3xl mx-auto px-6 pt-16 text-center">
-        <div className="mx-auto flex items-center justify-center gap-2 sm:gap-3">
+      <div className="relative max-w-3xl mx-auto px-6 pt-14 sm:pt-16 pb-12 text-center">
+        <div className="mx-auto flex items-center justify-center gap-2 sm:gap-3 mb-8">
           <span className="inline-flex h-8 w-8 sm:h-10 sm:w-10 items-center justify-center rounded-full bg-[var(--lime)] text-[var(--navy-deep)] text-lg sm:text-xl font-bold">
             ✓
           </span>
@@ -67,48 +60,30 @@ function VslHeroHeader({
             <span className="text-[var(--lime)]">INVISÍVEL</span>
           </span>
         </div>
-      </div>
-      <WistiaVsl onReachThreshold={onReachThreshold} trackThreshold={trackThreshold} />
-    </section>
-  );
-}
 
-function HeroContent() {
-  return (
-    <section className="bg-[var(--navy-deep)] text-[var(--cream)] relative overflow-hidden">
-      <div className="absolute inset-0 opacity-[0.08] [background-image:radial-gradient(circle_at_20%_20%,var(--lime),transparent_40%),radial-gradient(circle_at_80%_60%,var(--lime),transparent_45%)]" />
-      <div className="relative max-w-3xl mx-auto px-6 pt-5 pb-16 text-center">
-        <h1 className="text-2xl sm:text-4xl md:text-5xl font-extrabold leading-[1.15] sm:leading-[1.1]">
-          O Código Invisível ensina a <span className="text-[var(--lime)]">ler o comportamento</span> do cliente e reduzir objeções sem precisar pressionar para vender.
+        <h1 className="text-2xl sm:text-4xl md:text-[42px] font-extrabold leading-[1.15] sm:leading-[1.1]">
+          Cansei de ouvir <span className="text-[var(--lime)]">“NÃO”</span> dos meus clientes — até entender que o problema era como eu falava com eles.
         </h1>
-        <p className="mt-6 text-base sm:text-lg text-[var(--cream)]/80 max-w-2xl mx-auto">
-          Descubra como identificar o perfil emocional do cliente em poucos minutos e use isso para conduzir conversas e aumentar suas vendas.
+        <p className="mt-6 text-base sm:text-lg text-[var(--cream)]/85 max-w-2xl mx-auto leading-relaxed">
+          Todo vendedor tem aquele perfil de cliente que o irrita. O segredo? A dor que te irrita no cliente é exatamente onde o seu faturamento está travado.
         </p>
 
-        <div className="mt-8 rounded-2xl border border-white/10 bg-white/[0.04] p-5 text-left max-w-xl mx-auto">
-          <p className="text-sm font-semibold text-[var(--lime)]">
-            Método prático baseado em comportamento humano, gatilhos mentais e inteligência emocional aplicada em vendas.
+        <div className="mt-8 rounded-2xl border border-white/10 bg-white/[0.04] p-5 sm:p-6 text-left max-w-2xl mx-auto space-y-4 text-sm sm:text-[15px] text-[var(--cream)]/90 leading-relaxed">
+          <p>
+            Lidar com o “não” faz parte da rotina de qualquer vendedor. O problema é quando o “não” vem acompanhado daquela sensação de que você fez tudo certo, mas o cliente simplesmente não conectou com você.
           </p>
-          <ul className="mt-4 space-y-2.5 text-sm sm:text-[15px]">
-            {[
-              "Entenda por que o cliente realmente diz “vou pensar”",
-              "Aprenda a identificar rapidamente cada perfil comportamental",
-              "Saiba exatamente como conduzir cada tipo de cliente",
-              "Venda sem parecer insistente ou robótico",
-              "Crie mais conexão, confiança e autoridade nas conversas",
-            ].map((t) => (
-              <li key={t} className="flex gap-2.5">
-                <Check className="w-5 h-5 text-[var(--lime)] shrink-0 mt-0.5" />
-                <span className="text-[var(--cream)]/90">{t}</span>
-              </li>
-            ))}
-          </ul>
+          <p className="font-semibold text-[var(--cream)]">
+            A verdade é dura: você toma “não” porque tenta vender para todo mundo da mesma forma.
+          </p>
+          <p className="font-extrabold text-[var(--lime)] text-base sm:text-lg">
+            Sem roteiros decorados. Venda baseada em leitura de comportamento humano.
+          </p>
         </div>
 
-        <a href="#receber" className="btn-cta btn-cta-sm mt-8" onClick={trackHeroInterest}>
-          QUERO ACESSAR O CÓDIGO INVISÍVEL AGORA <ArrowRight className="w-4 h-4" />
+        <a href="#metodo" className="btn-cta btn-cta-sm mt-8" onClick={trackHeroInterest}>
+          QUERO PARAR DE TOMAR “NÃO” <ArrowRight className="w-4 h-4" />
         </a>
-        <p className="mt-3 text-xs text-[var(--cream)]/60">Acesso imediato após a compra • Material 100% digital</p>
+        <p className="mt-3 text-xs text-[var(--cream)]/60">Acesso imediato após a compra • Material 100% digital • R$ {PRODUCT_PRICE},00</p>
       </div>
 
       <div className="relative ticker py-3 overflow-hidden">
@@ -122,11 +97,101 @@ function HeroContent() {
   );
 }
 
+function CopyInsight() {
+  return (
+    <section className="py-12 sm:py-14 px-6 bg-[var(--cream)]">
+      <div className="max-w-3xl mx-auto space-y-5 text-[var(--navy-deep)]">
+        <h2 className="text-2xl sm:text-3xl font-extrabold leading-tight">
+          Você está perdendo vendas para clientes que odeiam o seu jeito de vender.
+        </h2>
+        <p className="text-sm sm:text-base text-[var(--muted-foreground)] leading-relaxed">
+          Já reparou que o cliente que mais te irrita é aquele com o comportamento totalmente oposto ao seu?
+        </p>
+        <div className="space-y-3 text-sm sm:text-base leading-relaxed">
+          <p>Se você é direto e acelerado, odeia o cliente que pede mil detalhes.</p>
+          <p>Se você busca conexão, trava diante do cliente frio que só quer saber do preço.</p>
+        </div>
+        <p className="text-sm sm:text-base font-bold leading-relaxed">
+          A verdade é simples: você só consegue vender com facilidade para quem compra igual a você. Para todos os outros, você toma rejeição.
+        </p>
+        <div className="rounded-2xl border border-[var(--border)] bg-white p-5 sm:p-6 space-y-4">
+          <p className="text-sm sm:text-base leading-relaxed">
+            O <strong>Código Invisível</strong> não é mais um curso com roteiros engessados que ninguém usa. É um guia prático de venda comportamental para você identificar o perfil exato do seu cliente em segundos e conduzir a negociação sem parecer que está empurrando nada.
+          </p>
+          <p className="text-sm sm:text-base font-extrabold text-[var(--navy)]">
+            Domine a leitura comportamental, pare de perder vendas para o “vou pensar” e dobre sua conversão por apenas R$ {PRODUCT_PRICE},00.
+          </p>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function MethodPreview() {
+  const profiles = [
+    { icon: Fish, name: "Tubarão", tag: "Executor", desc: "Odeia enrolação e detalhes desnecessários. Pressione um Tubarão e ele dirá “não”." },
+    { icon: Shield, name: "Lobo", tag: "Analítico", desc: "Precisa de segurança e dados. Seja vago e ele vai sumir pedindo para “pensar”." },
+    { icon: Heart, name: "Gato", tag: "Emocional", desc: "Busca conexão humana. Trate-o de forma fria e a venda morre." },
+    { icon: Sparkles, name: "Águia", tag: "Visionário", desc: "Quer liberdade e soluções amplas. Tente controlá-lo e ele recusa." },
+  ];
+  const pillars = [
+    { icon: Eye, title: "Leitura Humana", desc: "Identifique o perfil do cliente em segundos, antes do primeiro “não”." },
+    { icon: Brain, title: "Gatilhos Mentais", desc: "Ative confiança e autoridade sem parecer insistente ou robótico." },
+    { icon: Compass, title: "Condução", desc: "Adapte tom, ritmo e argumentos para cada perfil sem confronto." },
+  ];
+
+  return (
+    <section id="metodo" className="py-12 sm:py-14 px-6 bg-[var(--navy-deep)] text-[var(--cream)]">
+      <div className="max-w-6xl mx-auto">
+        <div className="text-center max-w-3xl mx-auto">
+          <span className="text-xs font-bold tracking-[0.3em] text-[var(--lime)]">O MÉTODO</span>
+          <h2 className="mt-3 text-2xl sm:text-4xl font-extrabold leading-tight">
+            Inteligência Comportamental para parar de tomar rejeição desnecessária
+          </h2>
+          <p className="mt-4 text-sm sm:text-base text-[var(--cream)]/75 leading-relaxed">
+            Para parar de tomar rejeição, você não precisa de roteiros decorados ou técnicas agressivas de persuasão. Você precisa ler quem está do outro lado.
+          </p>
+        </div>
+
+        <div className="mt-10 grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {profiles.map(({ icon: Icon, name, tag, desc }) => (
+            <div key={name} className="rounded-2xl border border-white/10 bg-white/[0.04] p-5 hover:bg-white/[0.07] transition">
+              <div className="inline-flex items-center justify-center w-11 h-11 rounded-xl bg-[var(--lime)] text-[var(--navy-deep)]">
+                <Icon className="w-5 h-5" />
+              </div>
+              <h3 className="mt-4 text-lg font-extrabold">
+                {name} <span className="text-[var(--lime)] text-sm font-bold">({tag})</span>
+              </h3>
+              <p className="mt-2 text-sm text-[var(--cream)]/75 leading-relaxed">{desc}</p>
+            </div>
+          ))}
+        </div>
+
+        <div className="mt-8 grid md:grid-cols-3 gap-4">
+          {pillars.map(({ icon: Icon, title, desc }) => (
+            <div key={title} className="rounded-2xl bg-[var(--lime)] p-5 text-[var(--navy-deep)]">
+              <Icon className="w-6 h-6" />
+              <h3 className="mt-3 font-extrabold text-lg">{title}</h3>
+              <p className="mt-2 text-sm leading-relaxed">{desc}</p>
+            </div>
+          ))}
+        </div>
+
+        <div className="mt-10 text-center">
+          <a href={CHECKOUT_URL} target="_blank" rel="noopener noreferrer" className="btn-cta" onClick={trackReceiveCheckout}>
+            BAIXAR O GUIA POR R$ {PRODUCT_PRICE},00 <ArrowRight className="w-4 h-4" />
+          </a>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function Problem() {
   const pains = [
-    "Você entra em conversas sem leitura do cliente e a venda esfria.",
-    "Você sente que poderia ter vendido, mas não sabe onde perdeu o controle.",
-    "Você tenta convencer sem antes entender o comportamento de quem está do outro lado.",
+    "Você fez tudo certo na conversa — e mesmo assim ouviu “não”.",
+    "Você tenta vender do seu jeito para clientes que compram de formas completamente diferentes.",
+    "Você perde comissão toda semana porque não sabe contornar o perfil que mais te irrita.",
   ];
   return (
     <section className="section-deferred py-12 sm:py-14 px-6 bg-[var(--cream)]">
@@ -134,7 +199,7 @@ function Problem() {
         <div className="relative">
           <img
             src={frustradoImg}
-            alt="Vendedor frustrado por não conseguir fechar a venda"
+            alt="Vendedor frustrado após ouvir não do cliente"
             width={1024}
             height={1024}
             loading="lazy"
@@ -144,10 +209,10 @@ function Problem() {
         </div>
         <div>
           <h2 className="mt-3 text-2xl sm:text-4xl lg:text-[40px] font-extrabold text-[var(--navy-deep)] leading-[1.15]">
-            Você escuta <span className="text-[var(--navy)]">“vou pensar”</span>… e não sabe o que responder.
+            Você escuta <span className="text-[var(--navy)]">“não”</span>… e não sabe o que mudou na conversa.
           </h2>
           <p className="mt-5 text-sm sm:text-base lg:text-[17px] text-[var(--muted-foreground)] leading-relaxed">
-            O cliente demonstra interesse, mas some no meio da conversa. Você sente que a venda poderia ter acontecido… mas não consegue identificar onde perdeu o controle da negociação.
+            O cliente demonstra interesse, mas some no meio da negociação. Você sente que a venda poderia ter acontecido — mas o perfil dele simplesmente não conectou com o seu jeito de vender.
           </p>
           <div className="mt-6 space-y-4">
             {pains.map((p) => (
@@ -158,10 +223,10 @@ function Problem() {
             ))}
           </div>
           <p className="mt-6 text-sm sm:text-base lg:text-[17px] font-bold text-[var(--navy-deep)] leading-relaxed">
-            O problema é que a maioria dos vendedores tenta convencer sem antes entender o comportamento do cliente.
+            O problema não é falta de esforço. É vender para todo mundo da mesma forma.
           </p>
           <p className="mt-3 text-sm sm:text-base lg:text-[17px] text-[var(--navy-deep)] leading-relaxed">
-            E é exatamente isso que o <strong>Código Invisível</strong> resolve. Você vai aprender como identificar rapidamente o perfil comportamental do cliente, entender o que existe por trás das objeções e conduzir a conversa de forma estratégica, gerando mais confiança, conexão e fechamento.
+            O <strong>Código Invisível</strong> te ensina a ler o perfil comportamental em segundos, adaptar seu tom antes do primeiro “não” e conduzir a negociação com estratégia — não com roteiro decorado.
           </p>
         </div>
       </div>
@@ -233,7 +298,7 @@ function Receive() {
             Tudo o que está incluído
           </h2>
           <p className="mt-4 text-[var(--muted-foreground)]">
-            Um guia prático criado para vendedores, closers, empresários e equipes comerciais que querem transformar comportamento em conversão.
+            Um guia prático de venda comportamental — sem roteiros decorados — para vendedores, closers, empresários e equipes comerciais.
           </p>
         </div>
 
@@ -340,9 +405,12 @@ function Offer() {
       <div className="max-w-md mx-auto mt-10 rounded-3xl bg-[var(--lime)] p-8 sm:p-10 text-center text-[var(--navy-deep)] shadow-[0_30px_60px_-20px_oklch(0.78_0.13_85/0.6)]">
         <h3 className="text-3xl sm:text-4xl font-extrabold font-display text-[var(--navy)]">Investimento</h3>
         <div className="mt-5 text-base">Por apenas</div>
-        <div className="mt-1 text-6xl sm:text-7xl font-extrabold font-display text-[var(--navy)] leading-none">R$97</div>
+        <div className="mt-1 text-6xl sm:text-7xl font-extrabold font-display text-[var(--navy)] leading-none">R${PRODUCT_PRICE}</div>
         <p className="mt-6 text-sm sm:text-base text-[var(--navy-deep)]/85 leading-relaxed">
-          Um único cliente fechado com o <strong>Código Invisível</strong> já paga o seu investimento.
+          Quanto custou o último “não” que você levou essa semana? Com certeza mais do que R$ {PRODUCT_PRICE},00.
+        </p>
+        <p className="mt-3 text-sm sm:text-base font-bold text-[var(--navy-deep)] leading-relaxed">
+          R$ {PRODUCT_PRICE},00 é menos do que a comissão de uma única venda que você perdeu nesta semana por não saber contornar o cliente.
         </p>
         <a
           href={CHECKOUT_URL}
@@ -434,7 +502,7 @@ function Faq() {
           ))}
         </div>
         <div className="mt-12 text-center">
-          <a href={CHECKOUT_URL} target="_blank" rel="noopener noreferrer" className="btn-cta" onClick={trackFaqCheckout}>COMEÇAR AGORA POR R$97 <ArrowRight className="w-4 h-4" /></a>
+          <a href={CHECKOUT_URL} target="_blank" rel="noopener noreferrer" className="btn-cta" onClick={trackFaqCheckout}>COMEÇAR AGORA POR R${PRODUCT_PRICE} <ArrowRight className="w-4 h-4" /></a>
         </div>
       </div>
     </section>
@@ -521,7 +589,7 @@ function ExitIntentPopup() {
           ESPERE. NÃO FECHE A PÁGINA.
         </span>
         <h3 id="exit-popup-title" className="mt-4 text-2xl sm:text-3xl font-extrabold leading-tight">
-          O Código Invisível vai te fazer entender o comportamento de cada perfil do seu potencial cliente e te fazer <span className="text-[#16a34a]">VENDER MUITO</span> mais.
+          Pare de tomar “não” por falar errado com o perfil do cliente. O Código Invisível te ensina a <span className="text-[#16a34a]">LER, ADAPTAR E CONDUZIR</span> cada negociação.
         </h3>
         <p className="mt-4 text-sm text-[var(--muted-foreground)]">
           Não perca essa oportunidade.
@@ -560,52 +628,11 @@ function WhatsAppFloat() {
 }
 
 function SalesPage() {
-  const [contentRevealed, setContentRevealed] = useState(false);
-  const [storageChecked, setStorageChecked] = useState(false);
-  const [instantReveal, setInstantReveal] = useState(false);
-  const contentRevealedRef = useRef(false);
-  const unlockTrackedRef = useRef(false);
-
-  const revealSalesContent = useCallback(() => {
-    if (contentRevealedRef.current) return;
-    contentRevealedRef.current = true;
-    if (!unlockTrackedRef.current) {
-      unlockTrackedRef.current = true;
-      trackVslContentUnlocked("video-threshold");
-    }
-    saveRevealAccess();
-    setContentRevealed(true);
-
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        const el = document.getElementById("delayed-sales-content");
-        if (el) void el.offsetHeight;
-      });
-    });
-  }, []);
-
-  useEffect(() => {
-    if (hasValidRevealAccess()) {
-      contentRevealedRef.current = true;
-      setInstantReveal(true);
-      setContentRevealed(true);
-    }
-    setStorageChecked(true);
-  }, []);
-
   useEffect(() => {
     trackVslLandingView();
   }, []);
 
   useEffect(() => {
-    if (!contentRevealed || !instantReveal || unlockTrackedRef.current) return;
-    unlockTrackedRef.current = true;
-    trackVslContentUnlocked("storage-return");
-  }, [contentRevealed, instantReveal]);
-
-  useEffect(() => {
-    if (!contentRevealed) return;
-
     const seen = new Set<string>();
     let observer: IntersectionObserver | null = null;
 
@@ -635,34 +662,24 @@ function SalesPage() {
       window.clearTimeout(timer);
       observer?.disconnect();
     };
-  }, [contentRevealed]);
-
-  const delayedContentClass = contentRevealed
-    ? instantReveal
-      ? "delayed-sales-content--visible-immediate"
-      : "delayed-sales-content--visible"
-    : "delayed-sales-content--hidden";
+  }, []);
 
   return (
     <main>
-      <VslHeroHeader
-        onReachThreshold={revealSalesContent}
-        trackThreshold={storageChecked && !contentRevealed}
-      />
-      <div id="delayed-sales-content" className={delayedContentClass}>
-        <HeroContent />
-        <Problem />
-        <Receive />
-        <Bonuses />
-        <Testimonials />
-        <About />
-        <Offer />
-        <Guarantee />
-        <Faq />
-        <Footer />
-      </div>
-      {contentRevealed && ENABLE_EXIT_POPUP && <ExitIntentPopup />}
-      {contentRevealed && ENABLE_WHATSAPP_FLOAT && <WhatsAppFloat />}
+      <DirectHero />
+      <CopyInsight />
+      <MethodPreview />
+      <Problem />
+      <Receive />
+      <Bonuses />
+      <Testimonials />
+      <About />
+      <Offer />
+      <Guarantee />
+      <Faq />
+      <Footer />
+      {ENABLE_EXIT_POPUP && <ExitIntentPopup />}
+      {ENABLE_WHATSAPP_FLOAT && <WhatsAppFloat />}
     </main>
   );
 }
